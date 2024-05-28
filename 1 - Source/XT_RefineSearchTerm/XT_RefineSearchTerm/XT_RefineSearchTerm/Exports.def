@@ -1,0 +1,7 @@
+EXPORTS
+XT_Init
+XT_About
+XT_Prepare
+XT_PrepareSearch
+XT_Finalize
+XT_ProcessSearchHit

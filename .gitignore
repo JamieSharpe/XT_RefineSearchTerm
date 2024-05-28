@@ -1,0 +1,14 @@
+.venv
+.idea
+.vscode
+.vs
+__pycache__
+
+*.spec
+*.log
+
+2 - External Libraries/*
+!2 - External Libraries/README.md
+
+6 - Releases/*
+!6 - Releases/README.md

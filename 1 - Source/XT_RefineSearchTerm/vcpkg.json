@@ -1,0 +1,6 @@
+{
+  "dependencies": [
+    "spdlog",
+    "boost-json"
+  ]
+}
