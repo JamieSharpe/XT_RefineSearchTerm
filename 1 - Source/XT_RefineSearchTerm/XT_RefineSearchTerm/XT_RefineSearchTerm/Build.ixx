@@ -14,7 +14,7 @@ export namespace Build
 #endif // DEBUG
         static inline std::wstring author = std::wstring(L"Jamie Sharpe");
         static inline std::wstring appName = std::wstring(L"XT_RefineSearchTerm");
-        static inline std::wstring appVersion = std::wstring(L"2024.05.28.1317");
+        static inline std::wstring appVersion = std::wstring(L"2024.05.28.1359");
 
         static inline std::wstring appReleaseMode = releaseMode ? std::wstring(L"Release") : std::wstring(L"Debug");
 
