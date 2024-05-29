@@ -147,52 +147,69 @@ namespace XT_RefineSearchTerm
             JCS::Logging::Log(std::format(L"Running Type: {}", JCS::XWUtils::XTensionOperationTypeToWString(nOpType)));
 
             int attempts = 0;
-            while (attempts < 3)
-            {
-                INT64 byteCountInput = JCS::XWUtils::GetUserInputNumber(L"Bytes before and after for the search hit (typically 20):");
 
-                if (byteCountInput <= 0 || byteCountInput > 4096)
+            if (readPrePostCount != 0)
+            {
+                JCS::Logging::Log(std::format("Bytes to read has already been set as: {}", readPrePostCount));
+            }
+            else
+            {
+                while (attempts < 3)
                 {
-                    JCS::Logging::Log(std::format("Invalid read byte count: {}", byteCountInput));
-                    JCS::Logging::Log("Please enter a number between 1 and 4096 (inclusive).");
-                    attempts++;
-                    continue;
+                    INT64 byteCountInput = JCS::XWUtils::GetUserInputNumber(L"Bytes before and after for the search hit (typically 20):");
+
+                    if (byteCountInput <= 0 || byteCountInput > 4096)
+                    {
+                        JCS::Logging::Log(std::format("Invalid read byte count: {}", byteCountInput));
+                        JCS::Logging::Log("Please enter a number between 1 and 4096 (inclusive).");
+                        attempts++;
+                        continue;
+                    }
+
+                    readPrePostCount = byteCountInput;
+                    break;
                 }
 
-                readPrePostCount = byteCountInput;
-                break;
-            }
-
-            if (attempts >= 3)
-            {
-                JCS::Logging::Log("Invalid excerpt buffer input, the extension will not be run.");
-                return -3;
+                if (attempts >= 3)
+                {
+                    JCS::Logging::Log("Invalid excerpt buffer input, the extension will not be run.");
+                    return -3;
+                }
             }
 
             JCS::Logging::Log(std::format("Bytes to read before and after search term for excerpt: {}", readPrePostCount));
 
-            attempts = 0;
-            while (attempts < 3)
+            if (percentageRequired != 0)
             {
-                INT64 percentageRequiredInput = JCS::XWUtils::GetUserInputNumber(L"Percentage of readable characters to mark the search hit positive:");
-
-                if (percentageRequiredInput <= 0 || percentageRequiredInput > 100)
+                JCS::Logging::Log(std::format("Readable character percentage has already been set as: {}", percentageRequired));
+            }
+            else
+            {
+                attempts = 0;
+                while (attempts < 3)
                 {
-                    JCS::Logging::Log(std::format("Invalid percentage: {}", percentageRequiredInput));
-                    JCS::Logging::Log("Please enter a number between 1 and 100 (inclusive).");
-                    attempts++;
-                    continue;
+                    INT64 percentageRequiredInput = JCS::XWUtils::GetUserInputNumber(L"Percentage of readable characters to mark the search hit positive:");
+
+                    if (percentageRequiredInput <= 0 || percentageRequiredInput > 100)
+                    {
+                        JCS::Logging::Log(std::format("Invalid percentage: {}", percentageRequiredInput));
+                        JCS::Logging::Log("Please enter a number between 1 and 100 (inclusive).");
+                        attempts++;
+                        continue;
+                    }
+
+                    percentageRequired = percentageRequiredInput;
+                    break;
                 }
 
-                percentageRequired = percentageRequiredInput;
-                break;
+                if (attempts >= 3)
+                {
+                    JCS::Logging::Log("Invalid required percentage input, the extension will not be run.");
+                    return -3;
+                }
             }
 
-            if (attempts >= 3)
-            {
-                JCS::Logging::Log("Invalid required percentage input, the extension will not be run.");
-                return -3;
-            }
+
 
             JCS::Logging::Log(std::format("Readable character percentage in excerpt: {}", percentageRequired));
 
