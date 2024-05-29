@@ -75,7 +75,25 @@ namespace XT_RefineSearchTerm
         /// <returns>You should return 0.</returns>
         static LONG About(HANDLE hParentWnd, PVOID lpReserved)
         {
-            JCS::Logging::Log(std::format(L"{} about.", Build::BuildInfo::title));
+            JCS::Logging::Log("About:");
+            JCS::Logging::Log(Build::BuildInfo::title);
+            JCS::Logging::Log("Project's URL: https://github.com/JamieSharpe/XT_RefineSearchTerm");
+            JCS::Logging::Log("Author's URL: https://jamiesharpe.co.uk");
+            JCS::Logging::Log("Copyright (C) 2024 Jamie Sharpe");
+
+            std::string licenseInfo = "License:\r\n"
+                "This program is free software: you can redistribute it and/or modify\r\n"
+                "it under the terms of the GNU General Public License as published by\r\n"
+                "the Free Software Foundation, either version 3 of the License, or\r\n"
+                "(at your option) any later version.\r\n"
+                "This program is distributed in the hope that it will be useful,\r\n"
+                "but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n"
+                "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the\r\n"
+                "GNU General Public License for more details.\r\n"
+                "You should have received a copy of the GNU General Public License\r\n"
+                "along with this program. If not, see <https://www.gnu.org/licenses/>.";
+
+            JCS::Logging::Log(licenseInfo);
 
             return XWF::Ordinary::XT_About_NoAction;
         }

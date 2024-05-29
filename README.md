@@ -4,10 +4,14 @@ This is an X-Ways XTension which checks how many printable characters (A-Z, 0-9,
 
 The primary reason for this XTension is to reduce the amount of false positive hits on a keyword search. For example, if the keyword happens to be amongst a binary file by chance.
 
+## Table of Contents
+
 - [XT\_RefineSearchTerm](#xt_refinesearchterm)
+  - [Table of Contents](#table-of-contents)
   - [Requirements](#requirements)
   - [Contributing](#contributing)
   - [Environment Setup](#environment-setup)
+  - [License](#license)
 
 ## Requirements
 
@@ -39,3 +43,9 @@ Please leave a detailed issue report for bugs so it may be reproduced.
 ## Environment Setup
 
 This XTension has been created using Visual Studio in C++.
+
+## License
+
+GNU General Public License v3.0 or later
+
+See [LICENSE](LICENSE.txt) to see the full text.
