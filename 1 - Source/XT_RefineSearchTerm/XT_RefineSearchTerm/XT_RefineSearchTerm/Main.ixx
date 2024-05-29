@@ -8,6 +8,7 @@ import Utils;
 import XTension;
 import Logging;
 import XWUtils;
+import Build;
 import ItemObject;
 import VolumeObject;
 import SearchHitInfo;
@@ -74,7 +75,7 @@ namespace XT_RefineSearchTerm
         /// <returns>You should return 0.</returns>
         static LONG About(HANDLE hParentWnd, PVOID lpReserved)
         {
-            JCS::Logging::Log("XT_RefineSearchTerm about");
+            JCS::Logging::Log(std::format(L"{} about.", Build::BuildInfo::title));
 
             return XWF::Ordinary::XT_About_NoAction;
         }
@@ -205,7 +206,7 @@ namespace XT_RefineSearchTerm
         /// </returns>
         static LONG Finalize(std::optional<HANDLE> hVolume, std::optional<HANDLE> hEvidence, DWORD nOpType, PVOID lpReserved)
         {
-            JCS::Logging::Log("XT_RefineSearchTerm is finalising the process of a volume.", JCS::Logging::LogLevel::Debug);
+            JCS::Logging::Log("Finalising the process of a volume.", JCS::Logging::LogLevel::Debug);
 
             return XWF::Ordinary::XT_Finalize_NoAction;
         }

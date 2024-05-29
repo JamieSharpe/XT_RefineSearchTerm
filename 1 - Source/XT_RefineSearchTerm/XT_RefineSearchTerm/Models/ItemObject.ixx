@@ -136,6 +136,48 @@ namespace Models
             JCS::Logging::Log(std::format(L"\tHash Value #2:\t{}", JCS::Utils::OptionalValueToString(hashTwoValue)));
         }
 
+        /// <summary>
+        /// Gets the file size including the slack space.
+        /// Note: This may be expensive as it needs to continuously read until the end of the file slack to determine the size.
+        /// Calculate the slack size by taking the returned value of this function from <c>this->size</c>.
+        /// </summary>
+        /// <returns></returns>
+        INT64 GetFileSizeWithSlack()
+        {
+            INT64 fileSizeWithSlack = this->size.value();
+
+            if (!this->OpenFile(XWF::IO::XWF_OpenItem_Flag_FileSlack))
+            {
+                JCS::Logging::Log("Could not open file to get excerpt.", JCS::Logging::LogLevel::Error);
+                return 0;
+            }
+
+            INT64 readBytesCount = 0;
+            DWORD readSize = 4096;
+            std::unique_ptr<char[]> fileContentBuffer = std::make_unique<char[]>(readSize);
+
+            do
+            {
+                readBytesCount = JCS::XWFWrapper::IO::XWF_Read(ItemHandle.value(), fileSizeWithSlack, fileContentBuffer.get(), readSize);
+                fileSizeWithSlack += readBytesCount;
+
+            } while (readBytesCount != 0);
+
+            this->CloseFile();
+
+            return fileSizeWithSlack;
+        }
+
+        /// <summary>
+        /// Gets the data from a file at the specified location and length.
+        /// Note: No checks are done to ensure the bounds are valid, this should be done on the caller side.
+        /// The reasoning is this function accesses the file's content and slack space. Determining the slack
+        /// space may be expensive, thus it is down to the caller to perform these checks. Rather than have 
+        /// this function always get the slack space size when it's not typically needed.
+        /// </summary>
+        /// <param name="startOffset"></param>
+        /// <param name="readLength"></param>
+        /// <returns></returns>
         std::unique_ptr<char[]> GetFileExcerpt(INT64 startOffset, INT64 readLength = 0)
         {
             if (!this->OpenFile(XWF::IO::XWF_OpenItem_Flag_FileSlack))
@@ -217,6 +259,8 @@ namespace Models
         /// <returns></returns>
         bool OpenFile(DWORD nFlags)
         {
+            JCS::Logging::Log(std::format("Opening Item ID: {}", ID), JCS::Logging::LogLevel::Debug);
+
             /// TODO: The item handle may need mutex exclusivity.
             if (!ItemHandle || ItemHandle.value() == nullptr)
             {
@@ -247,13 +291,13 @@ namespace Models
         /// <returns></returns>
         bool CloseFile()
         {
+            JCS::Logging::Log(std::format("Closing Item ID: {}", ID), JCS::Logging::LogLevel::Debug);
+
             if (!ItemHandle || ItemHandle.value() == nullptr)
             {
                 JCS::Logging::Log(std::format("File is already closed. Item ID: {}", ID), JCS::Logging::LogLevel::Debug);
                 return true;
             }
-
-            JCS::Logging::Log(std::format("Closing Item ID: {}", ID), JCS::Logging::LogLevel::Debug);
 
             JCS::XWFWrapper::IO::XWF_Close(ItemHandle.value());
 

@@ -152,7 +152,7 @@ namespace JCS::Logging
         try
         {
             std::string datetime = JCS::Utils::GetTimeAsString(true);
-            std::string file_name = std::format("logs/XT_RefineSearchTerm - {}.log", datetime);
+            std::string file_name = std::format("logs/{} - {}.log", JCS::Utils::ws2s(Build::BuildInfo::appName), datetime);
 
             JCS::Logging::file_logger = spdlog::basic_logger_mt("file_logger", file_name);
 

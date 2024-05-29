@@ -107,6 +107,19 @@ namespace JCS::Utils
     }
 
     /// <summary>
+    /// Convert std::string to std::wstring in UTF8 codec.
+    /// </summary>
+    /// <param name="wstr"></param>
+    /// <returns></returns>
+    export std::string ws2s(const std::wstring& wstr)
+    {
+        std::vector<char> buf(wstr.size());
+        std::use_facet<std::ctype<wchar_t>>(std::locale()).narrow(wstr.data(), wstr.data() + wstr.size(), '?', buf.data());
+
+        return std::string(buf.data(), buf.size());
+    }
+
+    /// <summary>
     /// Converts binary data to the bes representation of a string.
     /// </summary>
     /// <param name="str"></param>

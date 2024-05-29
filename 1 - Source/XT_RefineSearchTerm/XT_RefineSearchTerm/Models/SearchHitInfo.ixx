@@ -57,19 +57,13 @@ namespace Models
             }
 
             INT64 endOffsetBuffer = info->nRelOfs + info->nLength + dataPrePostRead;
-            if (item->size && endOffsetBuffer > item->size.value())
+            INT64 fileSizeWithSlack = item->GetFileSizeWithSlack();
+            if (endOffsetBuffer > fileSizeWithSlack)
             {
-                endOffsetBuffer = item->size.value();
+                endOffsetBuffer = fileSizeWithSlack;
             }
 
             INT64 readSize = endOffsetBuffer - startOffsetBuffer;
-
-            if (readSize < 0)
-            {
-                JCS::Logging::Log(std::format("Possibly found hit in file slack of Item ID: {}. Attempting to read may error", item->ID), JCS::Logging::LogLevel::Warning);
-                endOffsetBuffer = info->nRelOfs + info->nLength + dataPrePostRead;
-                readSize = endOffsetBuffer - startOffsetBuffer;
-            }
 
             std::unique_ptr<char[]> readBytes = item->GetFileExcerpt(startOffsetBuffer, readSize);
 
@@ -109,7 +103,6 @@ namespace Models
             JCS::Logging::Log(std::format(L"\tnRelOfs: {}", info->nRelOfs));
             JCS::Logging::Log(std::format(L"\tnAbsOfs: {}", info->nAbsOfs));
             JCS::Logging::Log(std::format(L"\tlpOptionalHitPtr: {}", info->lpOptionalHitPtr));
-            JCS::Logging::Log(std::format(L"\tlpOptionalHitPtrDeRef: {}", JCS::Utils::LPWStrToWString((LPWSTR)info->lpOptionalHitPtr)));
             JCS::Logging::Log(std::format(L"\tnSearchTermID: {}", info->nSearchTermID));
             JCS::Logging::Log(std::format(L"\tnLength: {}", info->nLength));
             JCS::Logging::Log(std::format(L"\tnCodePage: {}", info->nCodePage));
