@@ -78,7 +78,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(ProjectName)\$(IntDir)</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)bin\Intermediate\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -88,7 +88,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(ProjectName)\$(IntDir)</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)bin\Intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -124,7 +124,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>
       </AdditionalDependencies>
-      <ModuleDefinitionFile>XT_RefineSearchTerm/Exports.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Main/Exports.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>powershell -file "$(SolutionDir)..\postbuild.ps1" "$(ProjectName)" "$(OutDir)\" "$(ConfigurationName)"</Command>
@@ -163,7 +163,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>
       </AdditionalDependencies>
-      <ModuleDefinitionFile>XT_RefineSearchTerm/Exports.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Main/Exports.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
       <Command>powershell -file "$(SolutionDir)..\postbuild.ps1" "$(ProjectName)" "$(OutDir)\" "$(ConfigurationName)"</Command>
@@ -191,12 +191,12 @@
     <ClCompile Include="Models\SearchHitInfo.ixx" />
     <ClCompile Include="Models\VolumeObject.ixx" />
     <ClCompile Include="XT_Headers\XTension.ixx" />
-    <ClCompile Include="XT_RefineSearchTerm\Build.ixx" />
-    <ClCompile Include="XT_RefineSearchTerm\Main.ixx" />
-    <ClCompile Include="XT_RefineSearchTerm\XT_RefineSearchTerm.cpp" />
+    <ClCompile Include="Main\Build.ixx" />
+    <ClCompile Include="Main\Main.ixx" />
+    <ClCompile Include="Main\Entry.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="XT_RefineSearchTerm\Exports.def" />
+    <None Include="Main\Exports.def" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GMP\EvidenceObject.h" />
