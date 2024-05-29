@@ -149,16 +149,18 @@ namespace XT_RefineSearchTerm
             int attempts = 0;
             while (attempts < 3)
             {
-                std::wstring byteCount = JCS::XWUtils::GetUserInput(L"Bytes before and after for the search hit (typically 20):");
-                try
+                INT64 byteCountInput = JCS::XWUtils::GetUserInputNumber(L"Bytes before and after for the search hit (typically 20):");
+
+                if (byteCountInput <= 0 || byteCountInput > 4096)
                 {
-                    readPrePostCount = std::stoi(byteCount);
-                    break;
+                    JCS::Logging::Log(std::format("Invalid read byte count: {}", byteCountInput));
+                    JCS::Logging::Log("Please enter a number between 1 and 4096 (inclusive).");
+                    attempts++;
+                    continue;
                 }
-                catch (...)
-                {
-                }
-                attempts++;
+
+                readPrePostCount = byteCountInput;
+                break;
             }
 
             if (attempts >= 3)
@@ -166,24 +168,24 @@ namespace XT_RefineSearchTerm
                 JCS::Logging::Log("Invalid excerpt buffer input, the extension will not be run.");
                 return -3;
             }
-            else
-            {
-                JCS::Logging::Log(std::format("Bytes to read before and after search term for excerpt: {}", readPrePostCount));
-            }
+
+            JCS::Logging::Log(std::format("Bytes to read before and after search term for excerpt: {}", readPrePostCount));
 
             attempts = 0;
             while (attempts < 3)
             {
-                std::wstring precentageReqired = JCS::XWUtils::GetUserInput(L"Percentage of readable characters to mark the search hit positive:");
-                try
+                INT64 percentageRequiredInput = JCS::XWUtils::GetUserInputNumber(L"Percentage of readable characters to mark the search hit positive:");
+
+                if (percentageRequiredInput <= 0 || percentageRequiredInput > 100)
                 {
-                    percentageRequired = std::stoi(precentageReqired);
-                    break;
+                    JCS::Logging::Log(std::format("Invalid percentage: {}", percentageRequiredInput));
+                    JCS::Logging::Log("Please enter a number between 1 and 100 (inclusive).");
+                    attempts++;
+                    continue;
                 }
-                catch (...)
-                {
-                }
-                attempts++;
+
+                percentageRequired = percentageRequiredInput;
+                break;
             }
 
             if (attempts >= 3)
@@ -191,10 +193,8 @@ namespace XT_RefineSearchTerm
                 JCS::Logging::Log("Invalid required percentage input, the extension will not be run.");
                 return -3;
             }
-            else
-            {
-                JCS::Logging::Log(std::format("Readable character percentage in excerpt: {}", percentageRequired));
-            }
+
+            JCS::Logging::Log(std::format("Readable character percentage in excerpt: {}", percentageRequired));
 
             // Setup volume object.
             volume = std::make_shared<Models::VolumeObject>(hVolume, hEvidence);

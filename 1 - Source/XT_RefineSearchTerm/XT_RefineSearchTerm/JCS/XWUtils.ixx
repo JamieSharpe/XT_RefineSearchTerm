@@ -373,13 +373,20 @@ namespace JCS::XWUtils
     /// </summary>
     /// <param name="description">Description of what text is requested.</param>
     /// <returns>The value provided by the user. Empty string otherwise.</returns>
-    export std::wstring GetUserInput(const std::wstring& description = L"Please enter a value:")
+    export std::wstring GetUserInputText(const std::wstring& description = L"Please enter a value:", std::wstring defaultInput = std::wstring())
     {
-        std::unique_ptr<WCHAR[]> volume_name_buffer = std::make_unique<WCHAR[]>(255);
-
+        std::wstring userData;
         unsigned long inputStringSize = MAX_PATH;
 
-        std::wstring userData(inputStringSize, L'\0');
+        if (defaultInput.length() == 0)
+        {
+            userData = std::wstring(inputStringSize, L'\0');
+        }
+        else
+        {
+            userData = defaultInput;
+            userData.reserve(inputStringSize);
+        }
 
         INT64 returnedStringSize = JCS::XWFWrapper::Miscellaneous::XWF_GetUserInput(
             (LPWSTR)description.data(),
@@ -389,5 +396,23 @@ namespace JCS::XWUtils
         );
 
         return userData;
+    }
+
+    /// <summary>
+    /// Request the user to enter a positive integer value.
+    /// Note: Integer requests can not have a default value provided to the end user.
+    /// </summary>
+    /// <param name="description">Description of what positive integer is requested.</param>
+    /// <returns>The positive integer value provided by the user. -1 otherwise</returns>
+    export INT64 GetUserInputNumber(const std::wstring& description = L"Please enter a value:")
+    {
+        INT64 returnedNumber = JCS::XWFWrapper::Miscellaneous::XWF_GetUserInput(
+            (LPWSTR)description.data(),
+            NULL,
+            NULL,
+            XWF::Miscellaneous::XWF_GetUserInput_PositiveInteger
+        );
+
+        return returnedNumber;
     }
 }
