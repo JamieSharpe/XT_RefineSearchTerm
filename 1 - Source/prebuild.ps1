@@ -1,7 +1,7 @@
 Write-Host "Pre-Build Script"
 
 Write-Host "Changing version number."
-$build_info_path = "XT_RefineSearchTerm\Build.ixx"
+$build_info_path = "Main\Build.ixx"
 
 $file_config_content = Get-Content -path $build_info_path
 
