@@ -11,7 +11,7 @@ export namespace Build::BuildInfo
 #endif // DEBUG
     const std::wstring author = std::wstring(L"Jamie Sharpe");
     const std::wstring appName = std::wstring(L"XT_RefineSearchTerm");
-    const std::wstring appVersion = std::wstring(L"2024.05.29.1321");
+    const std::wstring appVersion = std::wstring(L"2024.05.29.1338");
 
     const std::wstring appReleaseMode = releaseMode ? std::wstring(L"Release") : std::wstring(L"Debug");
 
