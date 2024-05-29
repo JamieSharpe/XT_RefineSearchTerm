@@ -172,7 +172,7 @@ namespace XT_RefineSearchTerm
 
                 if (attempts >= 3)
                 {
-                    JCS::Logging::Log("Invalid excerpt buffer input, the extension will not be run.");
+                    JCS::Logging::Log(std::format(L"Invalid excerpt buffer input, the {} will not be run.", Build::BuildInfo::appName));
                     return -3;
                 }
             }
@@ -204,12 +204,10 @@ namespace XT_RefineSearchTerm
 
                 if (attempts >= 3)
                 {
-                    JCS::Logging::Log("Invalid required percentage input, the extension will not be run.");
+                    JCS::Logging::Log(std::format(L"Invalid required percentage input, the {} will not be run.", Build::BuildInfo::appName));
                     return -3;
                 }
             }
-
-
 
             JCS::Logging::Log(std::format("Readable character percentage in excerpt: {}", percentageRequired));
 
