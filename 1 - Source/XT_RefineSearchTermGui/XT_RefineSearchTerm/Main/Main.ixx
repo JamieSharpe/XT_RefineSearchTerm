@@ -29,6 +29,25 @@ export namespace Main::Main
 	extern std::shared_ptr<Models::VolumeObject> volume{};
 
 	/// <summary>
+	/// Entry point of the application when run in Debug_Exe mode.
+	/// 
+	/// Use this as a testing ground for your X-Tension functionality before integrating it into X-Ways Forensics.
+	/// </summary>
+	/// <param name="argc">The number of command-line arguments.</param>
+	/// <param name="argv">An array of C-style strings representing the command-line arguments.</param>
+	/// <returns>Returns an integer status code to the operating system. Typically, 0 indicates successful execution.</returns>
+	int Main(int argc, char** argv)
+	{
+		GUI::GUI_Main::CreateMainGUIWindow();
+
+		JCS::Logging::Log(std::format(L"Config - File Path: {}", Models::Configuration::selectedFilePath));
+		JCS::Logging::Log(std::format(L"Config - Folder Path: {}", Models::Configuration::selectedFolderPath));
+		JCS::Logging::Log(std::format(L"Config - UserInput: {}", Models::Configuration::userInput));
+
+		return 0;
+	}
+
+	/// <summary>
 	/// Init
 	/// 
 	/// Will be called before anything else happens, before the X-Tension does its actual job,

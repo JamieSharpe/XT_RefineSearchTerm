@@ -501,20 +501,33 @@ LONG __stdcall XT_ProcessSearchHit(XWF::Search::SearchHitInfo* info)
 /// <returns></returns>
 int main(int argc, char** argv)
 {
-	JCS::Logging::SetupFileLogger();
+	int returnValue = 0;
 
-	XT_Init(0, 0, nullptr, nullptr);
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::SetupFileLogger();
 
-	//XT_ProcessItem(0, nullptr);
+		JCS::Logging::Log(Build::BuildInfo::title);
 
-	std::wcout << "hello world" << std::endl;
-	JCS::Logging::Log("Hello world");
+		JCS::Logging::Log("Function Start: 'Main'", JCS::Logging::LogLevel::Trace);
 
-	GUI::GUI_Main::CreateMainGUIWindow();
+		returnValue = Main::Main::Main(argc, argv);
 
-	JCS::Logging::Log(std::format(L"Config - File Path: {}", Models::Configuration::selectedFilePath));
-	JCS::Logging::Log(std::format(L"Config - Folder Path: {}", Models::Configuration::selectedFolderPath));
-	JCS::Logging::Log(std::format(L"Config - UserInput: {}", Models::Configuration::userInput));
+		JCS::Logging::Log("Function End: 'Main'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		/// Output to logger and directly to XWF output window in case it was the logger than threw the exception.
+		std::wstring message = L"FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'Main'.";
+		std::wcout << message << std::endl;
+		JCS::Logging::Log(message, JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
 
-	XT_Done(nullptr);
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+
+	JCS::Logging::DestroyFileLogger();
+
+	return returnValue;
 }

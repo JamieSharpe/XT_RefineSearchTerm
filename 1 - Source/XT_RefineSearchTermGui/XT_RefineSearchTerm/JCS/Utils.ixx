@@ -283,7 +283,9 @@ namespace JCS::Utils
 		}
 		catch (const std::exception& e)
 		{
-			JCS::Logging::Log(std::format(L"FATAL ERROR: {}", JCS::Utils::StringToWideString(e.what())), JCS::Logging::LogLevel::Critical);
+			std::wstring message = std::format(L"FATAL ERROR: {}", JCS::Utils::StringToWideString(e.what()));
+			std::wcout << message << std::endl;
+			JCS::Logging::Log(message, JCS::Logging::LogLevel::Critical);
 			return true;
 		}
 
