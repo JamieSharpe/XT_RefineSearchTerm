@@ -14,13 +14,13 @@ export namespace Build::BuildInfo
 	const bool releaseMode = true;
 #else
 	const bool releaseMode = false;
-#endif // XT_DEBUG
+#endif // XT_RELEASE
 
 #ifdef XT_DEBUG_EXE
 	const bool executableMode = true;
 #else
 	const bool executableMode = false;
-#endif // XT_DEBUG
+#endif // XT_DEBUG_EXE
 
 	const std::wstring author = std::wstring(L"Jamie Sharpe");
 	const std::wstring appName = std::wstring(L"XT_RefineSearchTerm");
