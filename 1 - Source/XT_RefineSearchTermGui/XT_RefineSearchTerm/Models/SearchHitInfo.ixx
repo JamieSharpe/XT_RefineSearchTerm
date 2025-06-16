@@ -8,6 +8,8 @@ import Logging;
 import Utils;
 import ItemObject;
 import VolumeObject;
+import Configuration;
+import Search;
 import XTension;
 import std;
 
@@ -24,6 +26,7 @@ namespace Models
 		int positiveChars = 0;
 		long long stringLengthWithoutSearchTerm = 0;
 		int dataPrePostRead = 0;
+
 		SearchHitInfo(XWF::Search::SearchHitInfo* info, std::shared_ptr<Models::VolumeObject> volume, int dataPrePostRead)
 		{
 			this->info = info;
@@ -125,16 +128,37 @@ namespace Models
 		/// Discard the result if the printable character percentage is less than the provided value.
 		/// </summary>
 		/// <param name="percentageThreshold"></param>
-		void DiscardResult(double percentageThreshold)
+		void ProcessResult()
 		{
-			if (printablePercentage < percentageThreshold)
+			if (printablePercentage < Models::Configuration::printablePercentRequired)
 			{
-				JCS::Logging::Log(std::format("Readable characters in excerpt did not meet the required percentage: {:.2f}/{}", printablePercentage, percentageThreshold), JCS::Logging::LogLevel::Debug);
-				info->nFlags |= XWF::Search::XWF_SearchHitInfo_Flag_Deleted; // Discard the result.
+				JCS::Logging::Log(std::format("Readable characters in excerpt did not meet the required percentage: {:.2f}/{}", printablePercentage, Models::Configuration::printablePercentRequired), JCS::Logging::LogLevel::Debug);
+
+				// Discard the result.
+				info->nFlags |= XWF::Search::XWF_SearchHitInfo_Flag_Deleted;
+
+				return;
 			}
-			else
+
+			JCS::Logging::Log(std::format("Readable characters in excerpt met the required percentage: {:.2f}/{}. Item added to search hits.", printablePercentage, Models::Configuration::printablePercentRequired), JCS::Logging::LogLevel::Debug);
+
+			// Ensure the result is not marked as deleted.
+			info->nFlags &= ~XWF::Search::XWF_SearchHitInfo_Flag_Deleted;
+
+			// Get the current search term name and append the rename suffix if it does not already exist.
+			std::optional<LPWSTR> pSearchTermName = JCS::XWFWrapper::Search::XWF_GetSearchTerm(info->nSearchTermID, nullptr);
+			if (!pSearchTermName.has_value())
 			{
-				JCS::Logging::Log(std::format("Readable characters in excerpt met the required percentage: {:.2f}/{}. Item added to search hits.", printablePercentage, percentageThreshold), JCS::Logging::LogLevel::Debug);
+				JCS::Logging::Log(L"Failed to retrieve search term name.", JCS::Logging::LogLevel::Error);
+				return;
+			}
+
+			std::wstring searchTermName = JCS::Utils::LPWStrToWString(pSearchTermName.value());
+
+			if (!searchTermName.ends_with(Models::Configuration::searchTermRenameSuffix))
+			{
+				searchTermName = std::format(L"{} - {}", searchTermName, Models::Configuration::searchTermRenameSuffix);
+				JCS::XWFWrapper::Search::XWF_ManageSearchTerm(info->nSearchTermID, XWF::Search::XWF_ManageSearchTerm_nProperty_Rename, searchTermName.data());
 			}
 		}
 	};

@@ -616,9 +616,45 @@ export namespace XWF::Search
 	using fptr_XWF_AddSearchTerm = LONG(__stdcall*) (LPWSTR lpSearchTermName, DWORD nFlags);
 	fptr_XWF_AddSearchTerm XWF_AddSearchTerm;
 
-	/// XWF_ManageSearchTerm
+	/// XWF_ManageSearchTerm - Available in v20.0 and later.
+	/// <summary>
+	/// 
+	/// Set nProperty to 0 to delete the specified search term and all its search hits in all evidence objects. That is more efficient than deleting the search hits one by one.
+	/// If nSearchTermID is -1, that deletes all search terms and all their search hits.
+	/// pFlags should be set to NULL and is currently unused.
+	/// The return value of the function is 1 for presumed success, 0 for failure.
+	/// 
+	/// Set nProperty to 1 to manage the flags that define the properties of the search terms whose ID you specify. See XWF_ManageSearchTerm_Flag_* for the available flags.
+	/// You can retrieve these flags through the function return value (if pValue is NULL) or set those flags (if pValue is not NULL, but please know what you are doing).
+	/// If you set the flags, a return value of 1 indicates success, 0 indicates failure.
+	/// </summary>
 	using  fptr_XWF_ManageSearchTerm = DWORD(__stdcall*)(LONG nSearchTermID, LONG nProperty, LPVOID pValue);
 	fptr_XWF_ManageSearchTerm XWF_ManageSearchTerm;
+
+	constexpr auto XWF_ManageSearchTerm_nProperty_Delete = 0x0000;   // Delete specified search term.
+	constexpr auto XWF_ManageSearchTerm_nProperty_ManageFlags = 0x0001;   // Manage search term flags. Set `pValue` to NULL to retrieve the flags, or to a pointer to a DWORD value to set the flags.
+	constexpr auto XWF_ManageSearchTerm_nProperty_Rename = 0x0002;   // Rename search term. Set `pValue` to a pointer to a null-terminated UTF-16 string with the new name.
+
+
+	///
+	/// Set nProperty to 2 to rename the search term, e.g. assign a more user-friendly name to a complicated regular expression.
+	/// In that case pValue must point to a null-terminated UTF-16 string.
+	/// Available in v20.3 and later. The null-terminated UTF-16 string pointed to by lpSearchTerm may be truncated in X-Ways Forensics.
+	/// Currently, as of v20.3, up to 90 characters are supported. A return value of 1 indicates success, 0 indicates failure.
+	///
+	// Flag                                     Value       Description
+	constexpr auto XWF_ManageSearchTerm_Flag_LastUsedCaseSensitive = 0x0002;   // Last used for a case-sensitive search.
+	constexpr auto XWF_ManageSearchTerm_Flag_GREPButGotFriendly = 0x0004;   // Based on a GREP expression, but got a "friendly" name.
+	constexpr auto XWF_ManageSearchTerm_Flag_ForcedANDCombination = 0x0010;   // Forced in an AND combination.
+	constexpr auto XWF_ManageSearchTerm_Flag_SelectedInSearchTermList = 0x0040;   // Selected in the search term list.
+	constexpr auto XWF_ManageSearchTerm_Flag_SearchHitsExcluded = 0x0080;   // Search hits are excluded.
+	constexpr auto XWF_ManageSearchTerm_Flag_GREPExpression = 0x0100;   // GREP expression.
+	constexpr auto XWF_ManageSearchTerm_Flag_SelectedForFilter = 0x0200;   // Selected for filter.
+	constexpr auto XWF_ManageSearchTerm_Flag_CreatedResultOfDataComparison = 0x0400;   // Created as a result of data comparison.
+	constexpr auto XWF_ManageSearchTerm_Flag_UserSearchHits = 0x0800;   // For user search hits (defined manually by the user).
+	constexpr auto XWF_ManageSearchTerm_Flag_WordBoundaryStart = 0x1000;   // Search hits are checked for a word boundary at the start.
+	constexpr auto XWF_ManageSearchTerm_Flag_WordBoundaryEnd = 0x2000;   // Search hits are checked for a word boundary at the end.
+	constexpr auto XWF_ManageSearchTerm_Flag_BlockHashMatch = 0x4000;   // Search hit represents a data area with a block hash match.
 
 #pragma pack(push, 2)
 	/// <summary>

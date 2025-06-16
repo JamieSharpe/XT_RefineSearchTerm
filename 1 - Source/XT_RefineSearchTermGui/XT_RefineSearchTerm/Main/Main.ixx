@@ -36,7 +36,7 @@ export namespace Main::Main
 	/// the X-Tension is selected by the user in X-Ways Forensics. 
 	/// </summary>
 	/// <param name="nVersion">The higher word specifies the version number.For example 2040 means v20.4.
-	/// The third highest byte specified the service release number.The lowest byte specifies the current
+	/// The third highest byte specified the service release number. The lowest byte specifies the current
 	/// language of the user interface of the calling program.</param>
 	/// <param name="nFlags">A flag which states what software is currently running. See XT_INIT_*</param>
 	/// <param name="hMainWnd">Handle of the main window in case you need it, for example as a parent window for a message box.</param>
@@ -69,6 +69,8 @@ export namespace Main::Main
 
 		Models::Configuration::Setup();
 
+		GUI::GUI_Main::CreateMainGUIWindow();
+
 		return XWF::Core::XT_Init_Return_ThreadSafe;
 		return XWF::Core::XT_Init_Return_SingleThread;
 	}
@@ -91,8 +93,6 @@ export namespace Main::Main
 		JCS::Logging::Log(Build::BuildInfo::title);
 		JCS::Logging::Log("Project's URL: https://github.com/JamieSharpe/XT_Template");
 		JCS::Logging::Log("Author's URL: https://jamiesharpe.co.uk");
-
-		GUI::GUI_Main::CreateMainGUIWindow();
 
 		return XWF::Ordinary::XT_About_NoAction;
 	}
@@ -145,14 +145,12 @@ export namespace Main::Main
 	{
 		JCS::Logging::Log(std::format(L"Running Type: {}", JCS::XWUtils::XTensionOperationTypeToWString(nOpType)));
 
-		//GUI::StartUserInterface(GUI::Common::WindowType::Processing);
-
 		// Setup case object.
-		std::unique_ptr<Models::CaseObject> caseObj = std::make_unique<Models::CaseObject>();
+		//std::unique_ptr<Models::CaseObject> caseObj = std::make_unique<Models::CaseObject>();
 		//caseObj->Log();
 
 		// Setup evidence object.
-		std::unique_ptr<Models::EvidenceObject> evidence = std::make_unique<Models::EvidenceObject>(hEvidence);
+		//std::unique_ptr<Models::EvidenceObject> evidence = std::make_unique<Models::EvidenceObject>(hEvidence);
 		//evidence->Log();
 
 		// Setup volume object.
@@ -293,9 +291,9 @@ export namespace Main::Main
 	/// </returns>
 	LONG ProcessSearchHit(XWF::Search::SearchHitInfo* info)
 	{
-		Models::SearchHitInfo searchHitInfo = Models::SearchHitInfo(info, volume, 30);
-		searchHitInfo.Log();
-		searchHitInfo.DiscardResult(60);
+		Models::SearchHitInfo searchHitInfo = Models::SearchHitInfo(info, volume, Models::Configuration::readPrePostCount);
+		//searchHitInfo.Log();
+		searchHitInfo.ProcessResult();
 		return XWF::Ordinary::XT_ProcessSearchHit_NoFurtherAction;
 	}
 
@@ -312,7 +310,6 @@ export namespace Main::Main
 	/// <returns>You should return 0.</returns>
 	LONG Done(PVOID lpReserved)
 	{
-		//GUI::EndUserInterface();
 		return XWF::Core::XT_Done_NoAction;
 	}
 }

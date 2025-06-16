@@ -12,6 +12,9 @@ export namespace Models::Configuration
 	std::wstring selectedFilePath = L"";
 	std::wstring selectedFolderPath = L"";
 	std::wstring userInput = L"";
+	std::wstring searchTermRenameSuffix = L"";
+	int readPrePostCount = 0;
+	double printablePercentRequired = 60;
 
 	void Setup()
 	{
