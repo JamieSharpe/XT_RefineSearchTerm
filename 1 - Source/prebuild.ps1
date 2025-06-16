@@ -1,3 +1,8 @@
+Write-Host "============================"
+Write-Host "   Start of:"
+Write-Host "Pre Build Script"
+Write-Host "============================"
+
 Write-Host "Pre-Build Script"
 
 Write-Host "Changing version number."
@@ -15,3 +20,8 @@ $file_config_content = ($file_config_content -replace "(\s+const std::wstring ap
 $file_config_content | Set-Content $build_info_path
 
 Write-Host "Beginning compilation."
+
+Write-Host "============================"
+Write-Host "    End of:"
+Write-Host "Pre Build Script"
+Write-Host "============================"

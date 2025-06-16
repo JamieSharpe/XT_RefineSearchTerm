@@ -1,0 +1,7 @@
+{
+  "dependencies": [
+    "boost-json",
+    "spdlog",
+    "wxwidgets"
+  ]
+}

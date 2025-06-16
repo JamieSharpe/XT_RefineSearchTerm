@@ -1,3 +1,8 @@
+Write-Host "============================"
+Write-Host "    Start of:"
+Write-Host "Post Build Script"
+Write-Host "============================"
+
 # Parse arguments
 $app_name = $Args[0]
 $build_path = $Args[1]
@@ -19,6 +24,12 @@ New-Item -Path "$XTensionFolder" -ItemType "directory" -erroraction 'SilentlyCon
 
 Write-Host "Copying items to XTension folder."
 
-# Copy-Item $build_path -Destination $XTensionFolder -Force -Recurse | Out-Null
+Copy-Item $build_path -Destination $XTensionFolder -Force -Recurse | Out-Null
 
 Write-Host "Post build script completed."
+
+
+Write-Host "============================"
+Write-Host "     End of:"
+Write-Host "Post Build Script"
+Write-Host "============================"
