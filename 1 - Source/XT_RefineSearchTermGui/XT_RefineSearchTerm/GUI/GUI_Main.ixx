@@ -141,6 +141,12 @@ namespace GUI::GUI_Main
 		HWND h_HitContextLength_TextCtrl = GetDlgItem(hDlg, IDC_Tb_HitContextLength);
 		SendMessage(h_HitContextLength_TextCtrl, EM_LIMITTEXT, hitContextLengthMaxCharacterInput, 0);
 
+		/// Set the max limit for the search term rename suffix text box.
+		int searchTermRenameSuffixMaxCharacterInput = 30;
+
+		HWND h_SearchTermRenameSuffix_TextCtrl = GetDlgItem(hDlg, IDC_Tb_SearchTermRenameSuffix);
+		SendMessage(h_SearchTermRenameSuffix_TextCtrl, EM_LIMITTEXT, searchTermRenameSuffixMaxCharacterInput, 0);
+
 		JCS::Logging::Log("Setting initial values.", JCS::Logging::LogLevel::Trace);
 		ResetGUI(hDlg);
 
@@ -261,6 +267,18 @@ namespace GUI::GUI_Main
 		{
 			JCS::Logging::Log(std::format(L"Spin value out of range: {}, setting to 0.", printablePercentRequiredSpinValue), JCS::Logging::LogLevel::Trace);
 			SetDlgItemText(hDlg, IDC_Tb_PrintablePercentRequired, L"0");
+		}
+
+		/// Validate the hit context length.
+		if (hitContextLengthSpinValue > 100)
+		{
+			JCS::Logging::Log(std::format(L"Spin value out of range: {}, setting to 100.", hitContextLengthSpinValue), JCS::Logging::LogLevel::Trace);
+			SetDlgItemText(hDlg, IDC_Tb_HitContextLength, L"100");
+		}
+		else if (printablePercentRequiredSpinValue < 0)
+		{
+			JCS::Logging::Log(std::format(L"Spin value out of range: {}, setting to 0.", hitContextLengthSpinValue), JCS::Logging::LogLevel::Trace);
+			SetDlgItemText(hDlg, IDC_Tb_HitContextLength, L"0");
 		}
 
 		/// Check data is provided.
