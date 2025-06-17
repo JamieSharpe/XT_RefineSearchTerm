@@ -39,6 +39,7 @@ export namespace Main::Main
 	int Main(int argc, char** argv)
 	{
 		GUI::GUI_Main::CreateMainGUIWindow();
+		GUI::GUI_Main::CreateHelpGUIWindow();
 
 		JCS::Logging::Log(std::format(L"Config - Printable Percentage Required: {}", Models::Configuration::printablePercentRequired));
 		JCS::Logging::Log(std::format(L"Config - Hit Context Length: {}", Models::Configuration::hitContextLength));

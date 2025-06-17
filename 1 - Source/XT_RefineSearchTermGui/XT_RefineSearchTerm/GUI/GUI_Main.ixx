@@ -29,6 +29,13 @@ namespace GUI::GUI_Main
 	int printablePercentRequiredSpinValue = 0;
 	int hitContextLengthSpinValue = 0;
 
+	/// Declarations for the help dialog procedure and event handlers.
+	INT_PTR CALLBACK HelpDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
+	/// Declarations for event handlers.
+	void IDD_HELP_DIALOG_Initialised(HWND hDlg);
+	void IDD_HELP_DIALOG_Closed(HWND hDlg);
+	void IDD_HELP_DIALOG_Destroyed(HWND hDlg);
+	void IDC_Btn_OK_Clicked(HWND hDlg);
 	/// Declarations for the main dialog procedure and event handlers.
 	INT_PTR CALLBACK MainDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	/// Declarations for event handlers.
@@ -62,7 +69,19 @@ namespace GUI::GUI_Main
 		JCS::Logging::Log("Terminated Main Window.", JCS::Logging::LogLevel::Trace);
 	}
 
-#pragma region GUIEventHandlers
+	/// <summary>
+	/// Opens a help GUI window for the X-Tension.
+	/// </summary>
+	export void CreateHelpGUIWindow()
+	{
+		JCS::Logging::Log("Opening Help Window.", JCS::Logging::LogLevel::Trace);
+
+		DialogBox(Build::BuildInfo::XW_HANDLEMain, MAKEINTRESOURCE(IDD_HELP_DIALOG), nullptr, HelpDialogProc);
+
+		JCS::Logging::Log("Terminated Help Window.", JCS::Logging::LogLevel::Trace);
+	}
+
+#pragma region MainGUIEventHandlers
 	/// <summary>
 	/// Main Dialog Message Event Loop
 	/// </summary>
@@ -188,7 +207,89 @@ namespace GUI::GUI_Main
 		IDD_MAIN_DIALOG_Closed(hDlg);
 		EndDialog(hDlg, 0);
 	}
-#pragma endregion GUIEventHandlers
+#pragma endregion MainGUIEventHandlers
+
+#pragma region HelpGUIEventHandlers
+	/// <summary>
+	/// Help Dialog Message Event Loop
+	/// </summary>
+	/// <param name="hDlg"></param>
+	/// <param name="message"></param>
+	/// <param name="wParam"></param>
+	/// <param name="lParam"></param>
+	/// <returns></returns>
+	INT_PTR CALLBACK HelpDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+	{
+		switch (message)
+		{
+			case WM_INITDIALOG:
+				IDD_HELP_DIALOG_Initialised(hDlg);
+				return TRUE;
+				break;
+			case WM_DESTROY:
+				IDD_HELP_DIALOG_Destroyed(hDlg);
+				return TRUE;
+				break;
+			case WM_CLOSE:
+				IDD_HELP_DIALOG_Closed(hDlg);
+				EndDialog(hDlg, 0);
+				return TRUE;
+				break;
+			case WM_COMMAND:
+				if (IDC_Button_Is_Clicked(IDC_Btn_OK, wParam))
+				{
+					IDC_Btn_OK_Clicked(hDlg);
+					return TRUE;
+				}
+				break;
+			case EN_UPDATE:
+				break;
+		}
+		return FALSE;
+	}
+
+	/// <summary>
+	/// The dialog has initialised, contiue with our own initialisation.
+	/// </summary>
+	/// <param name="hDlg"></param>
+	void IDD_HELP_DIALOG_Initialised(HWND hDlg)
+	{
+		//std::wstring helpContent = L"help content.";
+		//SetDlgItemText(hDlg, IDC_Rtb_Help, helpContent.c_str());
+	}
+
+	/// <summary>
+	/// The dialog has been closed, this runs before the dialog is destroyed.
+	/// </summary>
+	/// <param name="hDlg"></param>
+	void IDD_HELP_DIALOG_Closed(HWND hDlg)
+	{
+		SaveToConfiguration(hDlg);
+		JCS::Logging::Log("Help dialog closed.", JCS::Logging::LogLevel::Trace);
+	}
+
+	/// <summary>
+	/// The dialog has been destroyed, this runs after the dialog is closed.
+	/// </summary>
+	/// <param name="hDlg"></param>
+	void IDD_HELP_DIALOG_Destroyed(HWND hDlg)
+	{
+		JCS::Logging::Log("Help dialog destroyed.", JCS::Logging::LogLevel::Trace);
+	}
+
+	/// <summary>
+	/// Button Process clicked event handler.
+	/// </summary>
+	/// <param name="hDlg"></param>
+	void IDC_Btn_OK_Clicked(HWND hDlg)
+	{
+		JCS::Logging::Log("OK button clicked.", JCS::Logging::LogLevel::Trace);
+
+		/// Run close dialog commands.
+		IDD_MAIN_DIALOG_Closed(hDlg);
+		EndDialog(hDlg, 0);
+	}
+#pragma endregion HelpGUIEventHandlers
 
 #pragma region GUIFunctions
 	/// <summary>
