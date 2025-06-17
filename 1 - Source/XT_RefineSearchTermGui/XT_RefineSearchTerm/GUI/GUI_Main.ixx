@@ -26,6 +26,7 @@ namespace GUI::GUI_Main
 	std::wstring filePath = L"";
 	std::wstring folderPath = L"";
 	std::wstring userInput = L"";
+	int spinValue = 0;
 
 	/// Declarations for the main dialog procedure and event handlers.
 	INT_PTR CALLBACK MainDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -105,6 +106,10 @@ namespace GUI::GUI_Main
 				}
 				ValidateGUI(hDlg);
 				break;
+			case EN_UPDATE:
+				/// RefreshLocalVariables(hDlg);
+				/// ValidateGUI(hDlg);
+				break;
 		}
 		return FALSE;
 	}
@@ -117,6 +122,23 @@ namespace GUI::GUI_Main
 	{
 		JCS::Logging::Log("Main dialog initialized.");
 		SetWindowText(hDlg, Build::BuildInfo::title.c_str());
+
+		/// Set printable text percentage range for the UI:
+		/// 0-100 for the spin wheel, and 3 characters max in the text box.
+		int minRange = 0;
+		int maxRange = 100;
+		int maxCharacterInput = 3;
+
+		HWND m_SpinCtrl = GetDlgItem(hDlg, IDC_Spn_SelectedFilePath);
+		SendMessage(m_SpinCtrl, UDM_SETRANGE, 0, MAKELPARAM(maxRange, minRange));
+
+		HWND m_TextCtrl = GetDlgItem(hDlg, IDC_Tb_SelectedFilePath);
+		SendMessage(m_TextCtrl, EM_LIMITTEXT, maxCharacterInput, 0);
+
+		/// Set the initial values for the GUI controls.
+		std::wstring spinValueStr = std::to_wstring(static_cast<int>(Models::Configuration::printablePercentRequired));
+		JCS::Logging::Log(std::format(L"Setting initial spin value: {}", spinValueStr), JCS::Logging::LogLevel::Debug);
+		SetDlgItemText(hDlg, IDC_Tb_SelectedFilePath, spinValueStr.c_str());
 	}
 
 	/// <summary>
@@ -216,6 +238,14 @@ namespace GUI::GUI_Main
 		folderPath = GetTextFromTextbox(hDlg, IDC_Tb_SelectedFolderPath);
 		userInput = GetTextFromTextbox(hDlg, IDC_Tb_UserInput);
 
+		
+		HWND m_SpinCtrl = GetDlgItem(hDlg, IDC_Spn_SelectedFilePath);
+		if (SendMessage(m_SpinCtrl, UDM_GETPOS, 0, 0) != -1)
+		{
+			spinValue = static_cast<int>(SendMessage(m_SpinCtrl, UDM_GETPOS, 0, 0));
+		}
+		JCS::Logging::Log(std::format(L"Spin control value: {}", spinValue), JCS::Logging::LogLevel::Debug);
+
 		JCS::Logging::Log("Local variables refreshed from GUI.");
 	}
 
@@ -239,6 +269,17 @@ namespace GUI::GUI_Main
 		}
 		// Additional validations...
 
+		if (spinValue > 100)
+		{
+			JCS::Logging::Log(std::format(L"Spin value out of range: {}, setting to 100.", spinValue), JCS::Logging::LogLevel::Debug);
+			SetDlgItemText(hDlg, IDC_Tb_SelectedFilePath, L"100");
+		}
+		else if (spinValue < 0)
+		{
+			JCS::Logging::Log(std::format(L"Spin value out of range: {}, setting to 0.", spinValue), JCS::Logging::LogLevel::Debug);
+			SetDlgItemText(hDlg, IDC_Tb_SelectedFilePath, L"0");
+		}
+
 		JCS::Logging::Log("GUI controls validated successfully.");
 	}
 	/// <summary>
@@ -253,6 +294,7 @@ namespace GUI::GUI_Main
 		Models::Configuration::selectedFilePath = filePath;
 		Models::Configuration::selectedFolderPath = folderPath;
 		Models::Configuration::userInput = userInput;
+		Models::Configuration::printablePercentRequired = static_cast<double>(spinValue);
 
 		JCS::Logging::Log("Saved configuration from GUI.");
 	}
