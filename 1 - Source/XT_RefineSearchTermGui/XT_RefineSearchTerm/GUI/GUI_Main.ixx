@@ -23,10 +23,11 @@ import Configuration;
 /// </summary>
 namespace GUI::GUI_Main
 {
-	std::wstring filePath = L"";
-	std::wstring folderPath = L"";
-	std::wstring userInput = L"";
-	int spinValue = 0;
+	std::wstring printablePercentRequired = L"";
+	std::wstring hitContextLength = L"";
+	std::wstring searchTermRenameSuffix = L"";
+	int printablePercentRequiredSpinValue = 0;
+	int hitContextLengthSpinValue = 0;
 
 	/// Declarations for the main dialog procedure and event handlers.
 	INT_PTR CALLBACK MainDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -54,11 +55,11 @@ namespace GUI::GUI_Main
 	/// </summary>
 	export void CreateMainGUIWindow()
 	{
-		JCS::Logging::Log("Opening Main Window.");
+		JCS::Logging::Log("Opening Main Window.", JCS::Logging::LogLevel::Trace);
 
 		DialogBox(Build::BuildInfo::XW_HANDLEMain, MAKEINTRESOURCE(IDD_MAIN_DIALOG), nullptr, MainDialogProc);
 
-		JCS::Logging::Log("Terminated Main Window.");
+		JCS::Logging::Log("Terminated Main Window.", JCS::Logging::LogLevel::Trace);
 	}
 
 #pragma region GUIEventHandlers
@@ -89,17 +90,7 @@ namespace GUI::GUI_Main
 				break;
 			case WM_COMMAND:
 				RefreshLocalVariables(hDlg);
-				if (IDC_Button_Is_Clicked(IDC_Btn_FilePathSelection, wParam))
-				{
-					IDC_Btn_FilePathSelection_Clicked(hDlg);
-					return TRUE;
-				}
-				if (IDC_Button_Is_Clicked(IDC_Btn_FolderPathSelection, wParam))
-				{
-					IDC_Btn_FolderPathSelection_Clicked(hDlg);
-					return TRUE;
-				}
-				else if (IDC_Button_Is_Clicked(IDC_Btn_Process, wParam))
+				if (IDC_Button_Is_Clicked(IDC_Btn_Process, wParam))
 				{
 					IDC_Btn_Process_Clicked(hDlg);
 					return TRUE;
@@ -115,30 +106,45 @@ namespace GUI::GUI_Main
 	}
 
 	/// <summary>
-	/// The dialog has initialised.
+	/// The dialog has initialised, contiue with our own initialisation.
 	/// </summary>
 	/// <param name="hDlg"></param>
 	void IDD_MAIN_DIALOG_Initialised(HWND hDlg)
 	{
-		JCS::Logging::Log("Main dialog initialized.");
+		JCS::Logging::Log("Main dialog - Initialising.", JCS::Logging::LogLevel::Trace);
+
 		SetWindowText(hDlg, Build::BuildInfo::title.c_str());
 
 		/// Set printable text percentage range for the UI:
 		/// 0-100 for the spin wheel, and 3 characters max in the text box.
-		int minRange = 0;
-		int maxRange = 100;
-		int maxCharacterInput = 3;
+		int printablePercentageMinRange = 0;
+		int printablePercentageMaxRange = 100;
 
-		HWND m_SpinCtrl = GetDlgItem(hDlg, IDC_Spn_SelectedFilePath);
-		SendMessage(m_SpinCtrl, UDM_SETRANGE, 0, MAKELPARAM(maxRange, minRange));
+		HWND h_PrintablePercentRequired_SpinCtrl = GetDlgItem(hDlg, IDC_Spn_PrintablePercentRequired);
+		SendMessage(h_PrintablePercentRequired_SpinCtrl, UDM_SETRANGE, 0, MAKELPARAM(printablePercentageMaxRange, printablePercentageMinRange));
 
-		HWND m_TextCtrl = GetDlgItem(hDlg, IDC_Tb_SelectedFilePath);
-		SendMessage(m_TextCtrl, EM_LIMITTEXT, maxCharacterInput, 0);
+		int printablePercentageMaxCharacterInput = 3;
 
-		/// Set the initial values for the GUI controls.
-		std::wstring spinValueStr = std::to_wstring(static_cast<int>(Models::Configuration::printablePercentRequired));
-		JCS::Logging::Log(std::format(L"Setting initial spin value: {}", spinValueStr), JCS::Logging::LogLevel::Debug);
-		SetDlgItemText(hDlg, IDC_Tb_SelectedFilePath, spinValueStr.c_str());
+		HWND h_PrintablePercentRequired_TextCtrl = GetDlgItem(hDlg, IDC_Tb_PrintablePercentRequired);
+		SendMessage(h_PrintablePercentRequired_TextCtrl, EM_LIMITTEXT, printablePercentageMaxCharacterInput, 0);
+
+		/// Set printable hit context range for the UI:
+		/// 0-100 for the spin wheel, and 3 characters max in the text box.
+		int hitContextLengthMinRange = 0;
+		int hitContextLengthMaxRange = 100;
+
+		HWND h_HitContextLength_SpinCtrl = GetDlgItem(hDlg, IDC_Spn_HitContextLength);
+		SendMessage(h_HitContextLength_SpinCtrl, UDM_SETRANGE, 0, MAKELPARAM(hitContextLengthMaxRange, hitContextLengthMinRange));
+
+		int hitContextLengthMaxCharacterInput = 3;
+
+		HWND h_HitContextLength_TextCtrl = GetDlgItem(hDlg, IDC_Tb_HitContextLength);
+		SendMessage(h_HitContextLength_TextCtrl, EM_LIMITTEXT, hitContextLengthMaxCharacterInput, 0);
+
+		JCS::Logging::Log("Setting initial values.", JCS::Logging::LogLevel::Trace);
+		ResetGUI(hDlg);
+
+		JCS::Logging::Log("Main dialog - Initialised.", JCS::Logging::LogLevel::Trace);
 	}
 
 	/// <summary>
@@ -148,7 +154,7 @@ namespace GUI::GUI_Main
 	void IDD_MAIN_DIALOG_Closed(HWND hDlg)
 	{
 		SaveToConfiguration(hDlg);
-		JCS::Logging::Log("Main dialog closed.");
+		JCS::Logging::Log("Main dialog closed.", JCS::Logging::LogLevel::Trace);
 	}
 
 	/// <summary>
@@ -157,37 +163,7 @@ namespace GUI::GUI_Main
 	/// <param name="hDlg"></param>
 	void IDD_MAIN_DIALOG_Destroyed(HWND hDlg)
 	{
-		JCS::Logging::Log("Main dialog destroyed.");
-	}
-
-	/// <summary>
-	/// Button File Path Selection clicked event handler.
-	/// </summary>
-	/// <param name="hDlg"></param>
-	void IDC_Btn_FilePathSelection_Clicked(HWND hDlg)
-	{
-		JCS::Logging::Log("File path selection button clicked.");
-
-		filePath = ShowFileDialog(hDlg);
-
-		SetDlgItemText(hDlg, IDC_Tb_SelectedFilePath, filePath.c_str());
-
-		JCS::Logging::Log(std::format(L"Selected path: {}", filePath), JCS::Logging::LogLevel::Info);
-	}
-
-	/// <summary>
-	/// Button Folder Path Selection clicked event handler.
-	/// </summary>
-	/// <param name="hDlg"></param>
-	void IDC_Btn_FolderPathSelection_Clicked(HWND hDlg)
-	{
-		JCS::Logging::Log("Folder path selection button clicked.");
-
-		folderPath = ShowFolderDialog(hDlg);
-
-		SetDlgItemText(hDlg, IDC_Tb_SelectedFolderPath, folderPath.c_str());
-
-		JCS::Logging::Log(std::format(L"Selected path: {}", filePath));
+		JCS::Logging::Log("Main dialog destroyed.", JCS::Logging::LogLevel::Trace);
 	}
 
 	/// <summary>
@@ -196,32 +172,45 @@ namespace GUI::GUI_Main
 	/// <param name="hDlg"></param>
 	void IDC_Btn_Process_Clicked(HWND hDlg)
 	{
-		JCS::Logging::Log("Process button clicked.");
+		JCS::Logging::Log("Process button clicked.", JCS::Logging::LogLevel::Trace);
 
-		JCS::Logging::Log(std::format(L"Selected File Path: {}", filePath));
-		JCS::Logging::Log(std::format(L"Selected Folder Path: {}", folderPath));
-		JCS::Logging::Log(std::format(L"User Input: {}", userInput));
+		JCS::Logging::Log(std::format(L"Printable Percentage Required: {}", printablePercentRequired), JCS::Logging::LogLevel::Trace);
+		JCS::Logging::Log(std::format(L"Hit Context Length: {}", hitContextLength), JCS::Logging::LogLevel::Trace);
+		JCS::Logging::Log(std::format(L"Search Term Rename Suffix: {}", searchTermRenameSuffix), JCS::Logging::LogLevel::Trace);
 
-		std::wstring fileContent = ReadFileToWString(filePath);
-		SetDlgItemText(hDlg, IDC_Tb_FileContent, fileContent.c_str());
+		/// Run close dialog commands.
+		IDD_MAIN_DIALOG_Closed(hDlg);
+		EndDialog(hDlg, 0);
 	}
 #pragma endregion GUIEventHandlers
 
 #pragma region GUIFunctions
 	/// <summary>
-	/// Resets the GUI controls to their default (empty) state.
+	/// Resets the GUI controls to their default state.
 	/// </summary>
 	/// <param name="hDlg">Handle to the dialog box whose controls will be reset.</param>
 	void ResetGUI(HWND hDlg)
 	{
-		JCS::Logging::Log("Resetting GUI to default state.");
+		JCS::Logging::Log("Resetting GUI to default state.", JCS::Logging::LogLevel::Trace);
 
-		SetDlgItemText(hDlg, IDC_Tb_SelectedFilePath, L"");
-		SetDlgItemText(hDlg, IDC_Tb_SelectedFolderPath, L"");
-		SetDlgItemText(hDlg, IDC_Tb_UserInput, L"");
-		SetDlgItemText(hDlg, IDC_Tb_FileContent, L"");
+		/// Printable percentage required.
+		
+		int printablePercentageRequiredInitialSpinValue = static_cast<int>(Models::Configuration::printablePercentRequired);
+		std::wstring printablePercentageRequiredSpinValueStr = std::to_wstring(printablePercentageRequiredInitialSpinValue);
+		JCS::Logging::Log(std::format(L"Printable percentage: {}", printablePercentageRequiredSpinValueStr), JCS::Logging::LogLevel::Trace);
+		SetDlgItemText(hDlg, IDC_Tb_PrintablePercentRequired, printablePercentageRequiredSpinValueStr.c_str());
 
-		JCS::Logging::Log("GUI reset to default state.");
+		/// Hit context length.
+		int hitContextInitialSpinValue = static_cast<int>(Models::Configuration::hitContextLength);
+		std::wstring HitContextLengthSpinValueStr = std::to_wstring(hitContextInitialSpinValue);
+		JCS::Logging::Log(std::format(L"Hit context: {}", HitContextLengthSpinValueStr), JCS::Logging::LogLevel::Trace);
+		SetDlgItemText(hDlg, IDC_Tb_HitContextLength, HitContextLengthSpinValueStr.c_str());
+
+		/// Search Term Rename Suffix
+		JCS::Logging::Log(std::format(L"Search Term Rename Suffix: {}", HitContextLengthSpinValueStr), JCS::Logging::LogLevel::Trace);
+		SetDlgItemText(hDlg, IDC_Tb_SearchTermRenameSuffix, Models::Configuration::searchTermRenameSuffix.c_str());
+
+		JCS::Logging::Log("GUI reset to default state.", JCS::Logging::LogLevel::Trace);
 	}
 
 	/// <summary>
@@ -232,21 +221,25 @@ namespace GUI::GUI_Main
 	/// <param name="hDlg">Handle to the dialog box containing the data.</param>
 	void RefreshLocalVariables(HWND hDlg)
 	{
-		JCS::Logging::Log("Refreshing local variables from GUI.");
+		JCS::Logging::Log("Refreshing local variables from GUI.", JCS::Logging::LogLevel::Trace);
 
-		filePath = GetTextFromTextbox(hDlg, IDC_Tb_SelectedFilePath);
-		folderPath = GetTextFromTextbox(hDlg, IDC_Tb_SelectedFolderPath);
-		userInput = GetTextFromTextbox(hDlg, IDC_Tb_UserInput);
-
-		
-		HWND m_SpinCtrl = GetDlgItem(hDlg, IDC_Spn_SelectedFilePath);
-		if (SendMessage(m_SpinCtrl, UDM_GETPOS, 0, 0) != -1)
+		printablePercentRequired = GetTextFromTextbox(hDlg, IDC_Tb_PrintablePercentRequired);
+		HWND h_PrintablePercentRequired_SpinCtrl = GetDlgItem(hDlg, IDC_Spn_PrintablePercentRequired);
+		if (SendMessage(h_PrintablePercentRequired_SpinCtrl, UDM_GETPOS, 0, 0) != -1)
 		{
-			spinValue = static_cast<int>(SendMessage(m_SpinCtrl, UDM_GETPOS, 0, 0));
+			printablePercentRequiredSpinValue = static_cast<int>(SendMessage(h_PrintablePercentRequired_SpinCtrl, UDM_GETPOS, 0, 0));
 		}
-		JCS::Logging::Log(std::format(L"Spin control value: {}", spinValue), JCS::Logging::LogLevel::Debug);
 
-		JCS::Logging::Log("Local variables refreshed from GUI.");
+		hitContextLength = GetTextFromTextbox(hDlg, IDC_Tb_HitContextLength);
+		HWND h_HitContextLength_SpinCtrl = GetDlgItem(hDlg, IDC_Spn_HitContextLength);
+		if (SendMessage(h_HitContextLength_SpinCtrl, UDM_GETPOS, 0, 0) != -1)
+		{
+			hitContextLengthSpinValue = static_cast<int>(SendMessage(h_HitContextLength_SpinCtrl, UDM_GETPOS, 0, 0));
+		}
+
+		searchTermRenameSuffix = GetTextFromTextbox(hDlg, IDC_Tb_SearchTermRenameSuffix);
+		
+		JCS::Logging::Log("Local variables refreshed from GUI.", JCS::Logging::LogLevel::Trace);
 	}
 
 	/// <summary>
@@ -256,31 +249,32 @@ namespace GUI::GUI_Main
 	/// <param name="hDlg">Handle to the dialog window whose controls are being validated.</param>
 	void ValidateGUI(HWND hDlg)
 	{
-		JCS::Logging::Log("Validating GUI controls.");
-		// Example validation: Ensure file path is not empty
-		if (filePath.empty() || !std::filesystem::exists(filePath))
+		JCS::Logging::Log("Validating GUI controls.", JCS::Logging::LogLevel::Trace);
+
+		/// Validate the printable percentage required.
+		if (printablePercentRequiredSpinValue > 100)
 		{
-			JCS::Logging::Log(std::format(L"The file path is empty or does not exists: {}", filePath), JCS::Logging::LogLevel::Warning);
+			JCS::Logging::Log(std::format(L"Spin value out of range: {}, setting to 100.", printablePercentRequiredSpinValue), JCS::Logging::LogLevel::Trace);
+			SetDlgItemText(hDlg, IDC_Tb_PrintablePercentRequired, L"100");
+		}
+		else if (printablePercentRequiredSpinValue < 0)
+		{
+			JCS::Logging::Log(std::format(L"Spin value out of range: {}, setting to 0.", printablePercentRequiredSpinValue), JCS::Logging::LogLevel::Trace);
+			SetDlgItemText(hDlg, IDC_Tb_PrintablePercentRequired, L"0");
+		}
+
+		/// Check data is provided.
+		if (printablePercentRequired.empty() || hitContextLength.empty())
+		{
+			JCS::Logging::Log(std::format(L"Required values are empty."), JCS::Logging::LogLevel::Warning);
 			EnableWindow(GetDlgItem(hDlg, IDC_Btn_Process), FALSE);
 		}
 		else
 		{
 			EnableWindow(GetDlgItem(hDlg, IDC_Btn_Process), TRUE);
 		}
-		// Additional validations...
 
-		if (spinValue > 100)
-		{
-			JCS::Logging::Log(std::format(L"Spin value out of range: {}, setting to 100.", spinValue), JCS::Logging::LogLevel::Debug);
-			SetDlgItemText(hDlg, IDC_Tb_SelectedFilePath, L"100");
-		}
-		else if (spinValue < 0)
-		{
-			JCS::Logging::Log(std::format(L"Spin value out of range: {}, setting to 0.", spinValue), JCS::Logging::LogLevel::Debug);
-			SetDlgItemText(hDlg, IDC_Tb_SelectedFilePath, L"0");
-		}
-
-		JCS::Logging::Log("GUI controls validated successfully.");
+		JCS::Logging::Log("GUI controls validated successfully.", JCS::Logging::LogLevel::Trace);
 	}
 	/// <summary>
 	/// Save the configuration provided by the user in the GUI to the configuration model.
@@ -289,14 +283,13 @@ namespace GUI::GUI_Main
 	/// <param name="hDlg"></param>
 	void SaveToConfiguration(HWND hDlg)
 	{
-		JCS::Logging::Log("Saving configuration from GUI.");
+		JCS::Logging::Log("Saving configuration from GUI.", JCS::Logging::LogLevel::Trace);
 
-		Models::Configuration::selectedFilePath = filePath;
-		Models::Configuration::selectedFolderPath = folderPath;
-		Models::Configuration::userInput = userInput;
-		Models::Configuration::printablePercentRequired = static_cast<double>(spinValue);
+		Models::Configuration::searchTermRenameSuffix = searchTermRenameSuffix;
+		Models::Configuration::hitContextLength = hitContextLengthSpinValue;
+		Models::Configuration::printablePercentRequired = static_cast<double>(printablePercentRequiredSpinValue);
 
-		JCS::Logging::Log("Saved configuration from GUI.");
+		JCS::Logging::Log("Saved configuration from GUI.", JCS::Logging::LogLevel::Trace);
 	}
 #pragma endregion GUIFunctions
 
@@ -422,7 +415,7 @@ namespace GUI::GUI_Main
 		HWND hEdit = GetDlgItem(hDlg, ID_Control);
 		if (!hEdit)
 		{
-			JCS::Logging::Log("Failed to get handle to textbox.", JCS::Logging::LogLevel::Error);
+			JCS::Logging::Log("Failed to get handle to textbox.", JCS::Logging::LogLevel::Trace);
 			return text;
 		}
 

@@ -132,7 +132,7 @@ namespace Models
 		{
 			if (printablePercentage < Models::Configuration::printablePercentRequired)
 			{
-				JCS::Logging::Log(std::format("Readable characters in excerpt did not meet the required percentage: {:.2f}/{}", printablePercentage, Models::Configuration::printablePercentRequired), JCS::Logging::LogLevel::Debug);
+				JCS::Logging::Log(std::format("Readable characters in excerpt did not meet the required percentage: {:.2f}/{}", printablePercentage, Models::Configuration::printablePercentRequired), JCS::Logging::LogLevel::Trace);
 
 				// Discard the result.
 				info->nFlags |= XWF::Search::XWF_SearchHitInfo_Flag_Deleted;
@@ -140,7 +140,7 @@ namespace Models
 				return;
 			}
 
-			JCS::Logging::Log(std::format("Readable characters in excerpt met the required percentage: {:.2f}/{}. Item added to search hits.", printablePercentage, Models::Configuration::printablePercentRequired), JCS::Logging::LogLevel::Debug);
+			JCS::Logging::Log(std::format("Readable characters in excerpt met the required percentage: {:.2f}/{}. Item added to search hits.", printablePercentage, Models::Configuration::printablePercentRequired), JCS::Logging::LogLevel::Trace);
 
 			// Ensure the result is not marked as deleted.
 			info->nFlags &= ~XWF::Search::XWF_SearchHitInfo_Flag_Deleted;
@@ -157,7 +157,7 @@ namespace Models
 
 			if (!searchTermName.ends_with(Models::Configuration::searchTermRenameSuffix))
 			{
-				searchTermName = std::format(L"{} - {}", searchTermName, Models::Configuration::searchTermRenameSuffix);
+				searchTermName = std::format(L"{}{}", searchTermName, Models::Configuration::searchTermRenameSuffix);
 				JCS::XWFWrapper::Search::XWF_ManageSearchTerm(info->nSearchTermID, XWF::Search::XWF_ManageSearchTerm_nProperty_Rename, searchTermName.data());
 			}
 		}

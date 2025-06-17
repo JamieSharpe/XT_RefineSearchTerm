@@ -88,6 +88,16 @@ namespace JCS::Logging
 			return;
 		}
 
+		switch (logLevel)
+		{
+			case (LogLevel::Trace):
+			case (LogLevel::Debug):
+				return;
+				break;
+			default:
+				break;
+		}
+
 		JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(message, XWF::Miscellaneous::XWF_OutputMessage_Flag_Default);
 	}
 

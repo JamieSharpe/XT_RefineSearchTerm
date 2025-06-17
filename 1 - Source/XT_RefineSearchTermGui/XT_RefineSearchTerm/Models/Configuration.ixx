@@ -9,12 +9,10 @@ import std;
 
 export namespace Models::Configuration
 {
-	std::wstring selectedFilePath = L"";
-	std::wstring selectedFolderPath = L"";
-	std::wstring userInput = L"";
-	std::wstring searchTermRenameSuffix = L"";
-	int readPrePostCount = 0;
-	double printablePercentRequired = 60;
+	bool configured = false;
+	double printablePercentRequired = 90;
+	int hitContextLength = 30;
+	std::wstring searchTermRenameSuffix = L" - RST";
 
 	void Setup()
 	{
@@ -22,6 +20,14 @@ export namespace Models::Configuration
 
 		boost::json::object obj;
 		obj["pi"] = 3.141;
+	}
+
+	void LogConfiguration()
+	{
+		JCS::Logging::Log(std::format(L"Configured: {}", configured));
+		JCS::Logging::Log(std::format(L"Printable Percent Required: {}", printablePercentRequired));
+		JCS::Logging::Log(std::format(L"Hit Context Length: {}", hitContextLength));
+		JCS::Logging::Log(std::format(L"Search Term Rename Suffix: {}", searchTermRenameSuffix));
 	}
 
 }

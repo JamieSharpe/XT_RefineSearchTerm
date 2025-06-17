@@ -3,16 +3,12 @@
 // Used by UserInterface.rc
 //
 #define IDD_MAIN_DIALOG                 101
-#define IDC_Tb_FileContent              1001
-#define IDC_Btn_FilePathSelection       1002
-#define IDC_Tb_SelectedFilePath         1003
-#define IDC_Spn_SelectedFilePath        1004
+#define IDC_Tb_PrintablePercentRequired 1003
+#define IDC_Spn_PrintablePercentRequired 1004
 #define IDC_Btn_Process                 1005
-#define IDC_Tb_UserInput                1006
-#define IDC_Btn_FolderPathSelection     1007
-#define IDC_SLIDER1                     1008
-#define IDC_Tb_SelectedFolderPath       1009
-#define IDC_EDIT1                       1010
+#define IDC_Tb_SearchTermRenameSuffix   1006
+#define IDC_Spn_HitContextLength        1007
+#define IDC_Tb_HitContextLength         1009
 
 // Next default values for new objects
 // 

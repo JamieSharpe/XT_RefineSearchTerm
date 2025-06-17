@@ -40,9 +40,9 @@ export namespace Main::Main
 	{
 		GUI::GUI_Main::CreateMainGUIWindow();
 
-		JCS::Logging::Log(std::format(L"Config - File Path: {}", Models::Configuration::selectedFilePath));
-		JCS::Logging::Log(std::format(L"Config - Folder Path: {}", Models::Configuration::selectedFolderPath));
-		JCS::Logging::Log(std::format(L"Config - UserInput: {}", Models::Configuration::userInput));
+		JCS::Logging::Log(std::format(L"Config - Printable Percentage Required: {}", Models::Configuration::printablePercentRequired));
+		JCS::Logging::Log(std::format(L"Config - Hit Context Length: {}", Models::Configuration::hitContextLength));
+		JCS::Logging::Log(std::format(L"Config - Search Term Rename Suffix: {}", Models::Configuration::searchTermRenameSuffix));
 
 		return 0;
 	}
@@ -87,8 +87,6 @@ export namespace Main::Main
 		//JCS::Logging::Log(userInput);
 
 		Models::Configuration::Setup();
-
-		GUI::GUI_Main::CreateMainGUIWindow();
 
 		return XWF::Core::XT_Init_Return_ThreadSafe;
 		return XWF::Core::XT_Init_Return_SingleThread;
@@ -163,6 +161,16 @@ export namespace Main::Main
 	LONG Prepare(std::optional<HANDLE> hVolume, std::optional<HANDLE> hEvidence, DWORD nOpType, PVOID lpReserved)
 	{
 		JCS::Logging::Log(std::format(L"Running Type: {}", JCS::XWUtils::XTensionOperationTypeToWString(nOpType)));
+
+		if (
+			(nOpType == XWF::Ordinary::XT_Action_LogicalSearchStarting ||
+			nOpType == XWF::Ordinary::XT_Action_PhysicalSearchStarting) &&
+			!Models::Configuration::configured
+			)
+		{
+			GUI::GUI_Main::CreateMainGUIWindow();
+			Models::Configuration::configured = true;
+		}
 
 		// Setup case object.
 		//std::unique_ptr<Models::CaseObject> caseObj = std::make_unique<Models::CaseObject>();
@@ -286,8 +294,6 @@ export namespace Main::Main
 	{
 		JCS::Logging::Log(std::format(L"Running Type: {}", JCS::XWUtils::XTensionOperationTypeToWString(XWF::Ordinary::XT_Action_PrepareSimultaneousSearch)));
 
-		//GUI::StartUserInterface(GUI::Common::WindowType::Search);
-
 		return XWF::Ordinary::XT_PrepareSearch_NoAdjustmentMade;
 	}
 
@@ -310,7 +316,8 @@ export namespace Main::Main
 	/// </returns>
 	LONG ProcessSearchHit(XWF::Search::SearchHitInfo* info)
 	{
-		Models::SearchHitInfo searchHitInfo = Models::SearchHitInfo(info, volume, Models::Configuration::readPrePostCount);
+		Models::Configuration::LogConfiguration();
+		Models::SearchHitInfo searchHitInfo = Models::SearchHitInfo(info, volume, Models::Configuration::hitContextLength);
 		//searchHitInfo.Log();
 		searchHitInfo.ProcessResult();
 		return XWF::Ordinary::XT_ProcessSearchHit_NoFurtherAction;
