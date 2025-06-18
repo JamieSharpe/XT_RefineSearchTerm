@@ -76,7 +76,13 @@ namespace GUI::GUI_Main
 	{
 		JCS::Logging::Log("Opening Help Window.", JCS::Logging::LogLevel::Trace);
 
+		// Need to manually load the DLL for RichEdit controls to work.
+		// See https://stackoverflow.com/questions/85427/rich-edit-control-in-raw-win32
+		HMODULE hLib_RichTextEdit2 = LoadLibrary(L"riched20.dll");
+
 		DialogBox(Build::BuildInfo::XW_HANDLEMain, MAKEINTRESOURCE(IDD_HELP_DIALOG), nullptr, HelpDialogProc);
+
+		FreeLibrary(hLib_RichTextEdit2);
 
 		JCS::Logging::Log("Terminated Help Window.", JCS::Logging::LogLevel::Trace);
 	}
@@ -254,6 +260,8 @@ namespace GUI::GUI_Main
 	/// <param name="hDlg"></param>
 	void IDD_HELP_DIALOG_Initialised(HWND hDlg)
 	{
+		JCS::Logging::Log("Help dialog - Initialising.", JCS::Logging::LogLevel::Trace);
+
 		//std::wstring helpContent = L"help content.";
 		//SetDlgItemText(hDlg, IDC_Rtb_Help, helpContent.c_str());
 	}
@@ -264,7 +272,6 @@ namespace GUI::GUI_Main
 	/// <param name="hDlg"></param>
 	void IDD_HELP_DIALOG_Closed(HWND hDlg)
 	{
-		SaveToConfiguration(hDlg);
 		JCS::Logging::Log("Help dialog closed.", JCS::Logging::LogLevel::Trace);
 	}
 
