@@ -404,8 +404,8 @@ namespace JCS::Utils
 
 		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:appTitle", Build::BuildInfo::appTitle);
 		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:appUrl", Build::BuildInfo::appUrl);
-		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:author", Build::BuildInfo::author);
 		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:authorUrl", Build::BuildInfo::authorUrl);
+		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:author", Build::BuildInfo::author);
 
 		return helpTextFileContent;
 	}
