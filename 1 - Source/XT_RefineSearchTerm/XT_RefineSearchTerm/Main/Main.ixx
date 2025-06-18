@@ -175,6 +175,8 @@ export namespace Main::Main
 			Models::Configuration::configured = true;
 		}
 
+		Models::Configuration::LogConfiguration();
+
 		// Setup case object.
 		//std::unique_ptr<Models::CaseObject> caseObj = std::make_unique<Models::CaseObject>();
 		//caseObj->Log();
@@ -319,7 +321,7 @@ export namespace Main::Main
 	/// </returns>
 	LONG ProcessSearchHit(XWF::Search::SearchHitInfo* info)
 	{
-		Models::Configuration::LogConfiguration();
+		//Models::Configuration::LogConfiguration();
 		Models::SearchHitInfo searchHitInfo = Models::SearchHitInfo(info, volume, Models::Configuration::hitContextLength);
 		//searchHitInfo.Log();
 		searchHitInfo.ProcessResult();
