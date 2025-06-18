@@ -15,7 +15,7 @@ The primary reason for this XTension is to reduce the amount of false positive h
 
 ## Requirements
 
-This XTension is tested with X-Ways 21.0 SR-6 x64.
+This XTension is tested with X-Ways 21.5 SR-0 x64.
 
 Earlier versions of X-Ways have not been tested.
 
@@ -25,14 +25,15 @@ When running a Simultaneous Search, be sure to select this XTension in the appro
 
 Upon execution the user will be:
 
-- Asked how many bytes to read before and after the search hit to calculate the printable character percentage.
-
-  ![XT_RefineSearchTerm Byte Count](3%20-%20Documentation/2%20-%20XT_RefineSearchTerm%20-%20Byte%20Count.png)
 - Asked what percentage of printable characters is required for a positive hit.
+- How many bytes to read before and after the search hit to calculate the printable character percentage.
+- A suffix to append to the name of the search term as a friendly name.
 
-  ![XT_RefineSearchTerm Required Percentage](3%20-%20Documentation/3%20-%20XT_RefineSearchTerm%20-%20RequiredPercentage.png)
+![XT_RefineSearchTerm UI Config](3%20-%20Documentation/2%20-%20XT_RefineSearchTerm%20-%20UI%20-%20Config.png)
 
-During testing, using the settings +30 bytes either side, and 90% requirement, keyword hits of 20,000+ are reduced to <1000 of predominantly clear text files. The searches may be rerun with other values to widen/narrow the positive criteria.
+During testing, using the settings 90% printable character requirement and +30 bytes either side for the hit context to check, keyword hits of 20,000+ are reduced to <1000 of predominantly clear text files. The searches may be rerun with other values to widen/narrow the positive criteria.
+
+It may be worth running the searches multiple times with different settings, modifying the suffix portion to reflect what options were used.
 
 ## Contributing
 
