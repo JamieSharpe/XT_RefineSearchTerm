@@ -323,7 +323,7 @@ namespace GUI::GUI_Main
 	}
 #pragma endregion HelpGUIEventHandlers
 
-#pragma region GUIFunctions
+#pragma region MainGUIFunctions
 	/// <summary>
 	/// Resets the GUI controls to their default state.
 	/// </summary>
@@ -442,7 +442,7 @@ namespace GUI::GUI_Main
 
 		JCS::Logging::Log("Saved configuration from GUI.", JCS::Logging::LogLevel::Trace);
 	}
-#pragma endregion GUIFunctions
+#pragma endregion MainGUIFunctions
 
 #pragma region FileAndFolderBrowserDialog
 	/// <summary>
