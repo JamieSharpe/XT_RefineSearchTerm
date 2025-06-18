@@ -47,6 +47,7 @@ namespace GUI::GUI_Main
 	void IDC_Btn_FilePathSelection_Clicked(HWND hDlg);
 	void IDC_Btn_FolderPathSelection_Clicked(HWND hDlg);
 	void IDC_Btn_Process_Clicked(HWND hDlg);
+	void IDC_Btn_Help_Clicked(HWND hDlg);
 	/// GUI functions for other operations.
 	void ResetGUI(HWND hDlg);
 	void RefreshLocalVariables(HWND hDlg);
@@ -73,7 +74,7 @@ namespace GUI::GUI_Main
 	/// <summary>
 	/// Opens a help GUI window for the X-Tension.
 	/// </summary>
-	export void CreateHelpGUIWindow()
+	export void CreateHelpGUIWindow(HWND hDlg = nullptr)
 	{
 		JCS::Logging::Log("Opening Help Window.", JCS::Logging::LogLevel::Trace);
 
@@ -81,7 +82,7 @@ namespace GUI::GUI_Main
 		// See https://stackoverflow.com/questions/85427/rich-edit-control-in-raw-win32
 		HMODULE hLib_RichTextEdit2 = LoadLibrary(L"riched20.dll");
 
-		DialogBox(Build::BuildInfo::XW_HANDLEMain, MAKEINTRESOURCE(IDD_HELP_DIALOG), nullptr, HelpDialogProc);
+		DialogBox(Build::BuildInfo::XW_HANDLEMain, MAKEINTRESOURCE(IDD_HELP_DIALOG), hDlg, HelpDialogProc);
 
 		FreeLibrary(hLib_RichTextEdit2);
 
@@ -119,6 +120,11 @@ namespace GUI::GUI_Main
 				if (IDC_Button_Is_Clicked(IDC_Btn_Process, wParam))
 				{
 					IDC_Btn_Process_Clicked(hDlg);
+					return TRUE;
+				}
+				if (IDC_Button_Is_Clicked(IDC_Btn_Help, wParam))
+				{
+					IDC_Btn_Help_Clicked(hDlg);
 					return TRUE;
 				}
 				ValidateGUI(hDlg);
@@ -213,6 +219,16 @@ namespace GUI::GUI_Main
 		/// Run close dialog commands.
 		IDD_MAIN_DIALOG_Closed(hDlg);
 		EndDialog(hDlg, 0);
+	}
+
+	/// <summary>
+	/// Button Help clicked event handler.
+	/// </summary>
+	/// <param name="hDlg"></param>
+	void IDC_Btn_Help_Clicked(HWND hDlg)
+	{
+		JCS::Logging::Log("Help button clicked.", JCS::Logging::LogLevel::Trace);
+		CreateHelpGUIWindow(hDlg);
 	}
 #pragma endregion MainGUIEventHandlers
 

@@ -38,8 +38,8 @@ export namespace Main::Main
 	/// <returns>Returns an integer status code to the operating system. Typically, 0 indicates successful execution.</returns>
 	int Main(int argc, char** argv)
 	{
-		//GUI::GUI_Main::CreateMainGUIWindow();
-		GUI::GUI_Main::CreateHelpGUIWindow();
+		GUI::GUI_Main::CreateMainGUIWindow();
+		//GUI::GUI_Main::CreateHelpGUIWindow();
 
 		JCS::Logging::Log(std::format(L"Config - Printable Percentage Required: {}", Models::Configuration::printablePercentRequired));
 		JCS::Logging::Log(std::format(L"Config - Hit Context Length: {}", Models::Configuration::hitContextLength));
