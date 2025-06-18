@@ -264,7 +264,6 @@ namespace GUI::GUI_Main
 		JCS::Logging::Log("Help dialog - Initialising.", JCS::Logging::LogLevel::Trace);
 
 		/// Set the help text.
-		//auto helpTextW = JCS::Utils::ReadFileToWString(L"./Resources/Help.rtf");
 		auto helpTextW = JCS::Utils::GetHelpText();
 		auto helpText = JCS::Utils::ws2s(helpTextW);
 
