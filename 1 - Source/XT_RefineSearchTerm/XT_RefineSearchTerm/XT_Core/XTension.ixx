@@ -616,6 +616,10 @@ export namespace XWF::Search
 	using fptr_XWF_AddSearchTerm = LONG(__stdcall*) (LPWSTR lpSearchTermName, DWORD nFlags);
 	fptr_XWF_AddSearchTerm XWF_AddSearchTerm;
 
+	// Flag                                     Value       Description
+	constexpr auto XWF_AddSearchTerm_nUsageFlags_AllowReuse = 0x01;   // Allow re-use of existing search term.
+	constexpr auto XWF_AddSearchTerm_nUsageFlags_UserSearchHits = 0x02;   // Mark search term as a search term for user search hits.
+
 	/// XWF_ManageSearchTerm - Available in v20.0 and later.
 	/// <summary>
 	/// 
@@ -631,6 +635,7 @@ export namespace XWF::Search
 	using  fptr_XWF_ManageSearchTerm = DWORD(__stdcall*)(LONG nSearchTermID, LONG nProperty, LPVOID pValue);
 	fptr_XWF_ManageSearchTerm XWF_ManageSearchTerm;
 
+	// Flag                                     Value       Description
 	constexpr auto XWF_ManageSearchTerm_nProperty_Delete = 0x0000;   // Delete specified search term.
 	constexpr auto XWF_ManageSearchTerm_nProperty_ManageFlags = 0x0001;   // Manage search term flags. Set `pValue` to NULL to retrieve the flags, or to a pointer to a DWORD value to set the flags.
 	constexpr auto XWF_ManageSearchTerm_nProperty_Rename = 0x0002;   // Rename search term. Set `pValue` to a pointer to a null-terminated UTF-16 string with the new name.
