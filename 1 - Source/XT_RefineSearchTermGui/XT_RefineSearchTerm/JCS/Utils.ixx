@@ -409,6 +409,4 @@ namespace JCS::Utils
 
 		return helpTextFileContent;
 	}
-
-	
 }
