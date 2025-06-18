@@ -85,6 +85,7 @@ namespace Models
 				}
 			}
 
+			// errors with 0x53 0x00 0x40 0x00
 			std::wstring convertedToString = JCS::Utils::b2ws(readBytesNoNulls.get(), info->nCodePage);
 
 			return convertedToString;
