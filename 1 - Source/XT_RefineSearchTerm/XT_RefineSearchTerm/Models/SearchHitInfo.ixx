@@ -51,13 +51,21 @@ namespace Models
 		{
 			std::unique_ptr<Models::ItemObject> item = std::make_unique<Models::ItemObject>(info->nItemID, ParentVolume);
 
-			INT64 startOffsetBuffer = info->nRelOfs - dataPrePostRead;
+			int multibyteMultiplier = 1;
+			if (info->nCodePage == 1200 || info->nCodePage == 1201) // UTF-16 Little Endian or Big Endian
+			{
+				multibyteMultiplier = 2; // UTF-16 uses 2 bytes per character
+			}
+
+			int dataPrePostReadWithMultiplier = this->dataPrePostRead * multibyteMultiplier;
+
+			INT64 startOffsetBuffer = info->nRelOfs - dataPrePostReadWithMultiplier;
 			if (startOffsetBuffer < 0)
 			{
 				startOffsetBuffer = 0;
 			}
 
-			INT64 endOffsetBuffer = info->nRelOfs + info->nLength + dataPrePostRead;
+			INT64 endOffsetBuffer = info->nRelOfs + info->nLength + dataPrePostReadWithMultiplier;
 			std::optional<INT64> fileSizeWithSlack = item->GetFileSizeWithSlack();
 
 			if (!fileSizeWithSlack)
@@ -76,17 +84,28 @@ namespace Models
 
 			std::unique_ptr<char[]> readBytesNoNulls = std::make_unique<char[]>(readSize);
 
-			for (int i = 0, j = 0; i < readSize; i++)
+			std::wstring convertedToString;
+
+			/// remove nulls it not UTF-16 Little Endian (1200) or UTF-16 Big Endian (1201)
+			if (info->nCodePage != 1200 || info->nCodePage != 1201)
 			{
-				if (readBytes[i] != '\0')
+				for (int i = 0, j = 0; i < readSize; i++)
 				{
-					readBytesNoNulls[j] = readBytes[i];
-					j++;
+					if (readBytes[i] != '\0')
+					{
+						readBytesNoNulls[j] = readBytes[i];
+						j++;
+					}
 				}
+
+				JCS::Utils::b2ws(readBytesNoNulls.get(), info->nCodePage);
+			}
+			else
+			{
+				convertedToString = JCS::Utils::StringToWideString(readBytes.get());
 			}
 
 			// errors with 0x53 0x00 0x40 0x00
-			std::wstring convertedToString = JCS::Utils::b2ws(readBytesNoNulls.get(), info->nCodePage);
 
 			return convertedToString;
 		}

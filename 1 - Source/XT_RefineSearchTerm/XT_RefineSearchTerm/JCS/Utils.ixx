@@ -146,6 +146,11 @@ namespace JCS::Utils
 	/// <returns></returns>
 	export std::wstring b2ws(const char* str, int codePage)
 	{
+		JCS::Logging::Log("Attempting to convert byte array to wide string:", JCS::Logging::LogLevel::Trace);
+		JCS::Logging::Log(std::format("{}", codePage), JCS::Logging::LogLevel::Trace);
+		JCS::Logging::Log(str, JCS::Logging::LogLevel::Trace);
+
+		JCS::Logging::Log("", JCS::Logging::LogLevel::Trace);
 		int convertResult = MultiByteToWideChar(codePage, 0, str, -1, NULL, 0);
 		if (convertResult == 0)
 		{
