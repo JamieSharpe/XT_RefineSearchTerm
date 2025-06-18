@@ -57,7 +57,6 @@ namespace GUI::GUI_Main
 	std::wstring ShowFileDialog(HWND owner);
 	std::wstring GetTextFromTextbox(HWND hDlg, long ID_Control);
 	bool IDC_Button_Is_Clicked(long ID_Control, WPARAM wParam);
-	std::wstring ReadFileToWString(const std::wstring& filePath);
 
 	/// <summary>
 	/// Opens a main GUI window for the X-Tension.
@@ -140,7 +139,7 @@ namespace GUI::GUI_Main
 	{
 		JCS::Logging::Log("Main dialog - Initialising.", JCS::Logging::LogLevel::Trace);
 
-		SetWindowText(hDlg, Build::BuildInfo::title.c_str());
+		SetWindowText(hDlg, Build::BuildInfo::appTitle.c_str());
 
 		/// Set printable text percentage range for the UI:
 		/// 0-100 for the spin wheel, and 3 characters max in the text box.
@@ -265,7 +264,8 @@ namespace GUI::GUI_Main
 		JCS::Logging::Log("Help dialog - Initialising.", JCS::Logging::LogLevel::Trace);
 
 		/// Set the help text.
-		auto helpTextW = ReadFileToWString(L"./Resources/Help.rtf");
+		//auto helpTextW = JCS::Utils::ReadFileToWString(L"./Resources/Help.rtf");
+		auto helpTextW = JCS::Utils::GetHelpText();
 		auto helpText = JCS::Utils::ws2s(helpTextW);
 
 		SETTEXTEX setTextSettings = {};
@@ -573,40 +573,6 @@ namespace GUI::GUI_Main
 		}
 
 		return text;
-	}
-
-	/// <summary>
-	/// Reads the entire content of a file and returns it as a wstring.
-	/// </summary>
-	/// <param name="filePath">The path to the file.</param>
-	/// <returns>File content as wstring, or empty if error.</returns>
-	std::wstring ReadFileToWString(const std::wstring& filePath)
-	{
-		std::filesystem::path absolutePath = std::filesystem::absolute(filePath);
-		JCS::Logging::Log(std::format(L"Reading contents of file: {}", absolutePath.wstring()), JCS::Logging::LogLevel::Trace);
-
-		if (absolutePath.empty())
-		{
-			JCS::Logging::Log(L"File path is empty.", JCS::Logging::LogLevel::Error);
-			return L"";
-		}
-
-		if (!std::filesystem::exists(absolutePath))
-		{
-			JCS::Logging::Log(std::format(L"File does not exist: {}", absolutePath.wstring()), JCS::Logging::LogLevel::Error);
-			return L"";
-		}
-
-		std::wifstream file(absolutePath, std::ios::binary);
-		if (!file)
-		{
-			JCS::Logging::Log(std::format(L"Failed to open file: {}", absolutePath.wstring()), JCS::Logging::LogLevel::Error);
-			return L"";
-		}
-
-		std::wstringstream wss;
-		wss << file.rdbuf();
-		return wss.str();
 	}
 #pragma endregion GUIHelperFunctions
 }

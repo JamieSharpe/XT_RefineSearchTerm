@@ -5,6 +5,7 @@ module;
 export module Utils;
 
 import Logging;
+import Build;
 import XTension;
 import std;
 
@@ -344,4 +345,70 @@ namespace JCS::Utils
 
 		return JCS::Utils::nullOutputString;
 	}
+
+	std::wstring replaceAll(std::wstring const& original, std::wstring const& before, std::wstring const& after)
+	{
+		std::wstring retval;
+		std::wstring::const_iterator end = original.end();
+		std::wstring::const_iterator current = original.begin();
+		std::wstring::const_iterator next =
+			std::search(current, end, before.begin(), before.end());
+		while (next != end)
+		{
+			retval.append(current, next);
+			retval.append(after);
+			current = next + before.size();
+			next = std::search(current, end, before.begin(), before.end());
+		}
+		retval.append(current, next);
+		return retval;
+	}
+
+	/// <summary>
+	/// Reads the entire content of a file and returns it as a wstring.
+	/// </summary>
+	/// <param name="filePath">The path to the file.</param>
+	/// <returns>File content as wstring, or empty if error.</returns>
+	export std::wstring ReadFileToWString(const std::wstring& filePath)
+	{
+		std::filesystem::path absolutePath = std::filesystem::absolute(filePath);
+		JCS::Logging::Log(std::format(L"Reading contents of file: {}", absolutePath.wstring()), JCS::Logging::LogLevel::Trace);
+
+		if (absolutePath.empty())
+		{
+			JCS::Logging::Log(L"File path is empty.", JCS::Logging::LogLevel::Error);
+			return L"";
+		}
+
+		if (!std::filesystem::exists(absolutePath))
+		{
+			JCS::Logging::Log(std::format(L"File does not exist: {}", absolutePath.wstring()), JCS::Logging::LogLevel::Error);
+			return L"";
+		}
+
+		std::wifstream file(absolutePath, std::ios::binary);
+		if (!file)
+		{
+			JCS::Logging::Log(std::format(L"Failed to open file: {}", absolutePath.wstring()), JCS::Logging::LogLevel::Error);
+			return L"";
+		}
+
+		std::wstringstream wss;
+		wss << file.rdbuf();
+		return wss.str();
+	}
+
+	export std::wstring GetHelpText()
+	{
+		std::wstring helpTextFileContent = ReadFileToWString(L"./Resources/Help.rtf");
+
+		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:appTitle", Build::BuildInfo::appTitle);
+		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:appUrl", Build::BuildInfo::appUrl);
+		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:author", Build::BuildInfo::author);
+		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:authorUrl", Build::BuildInfo::authorUrl);
+
+		return helpTextFileContent;
+	}
+
+	
 }

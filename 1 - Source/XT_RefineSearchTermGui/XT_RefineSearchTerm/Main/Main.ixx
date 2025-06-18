@@ -108,9 +108,11 @@ export namespace Main::Main
 	LONG About(HANDLE hParentWnd, PVOID lpReserved)
 	{
 		JCS::Logging::Log("About:");
-		JCS::Logging::Log(Build::BuildInfo::title);
+		JCS::Logging::Log(Build::BuildInfo::appTitle);
 		JCS::Logging::Log("Project's URL: https://github.com/JamieSharpe/XT_Template");
 		JCS::Logging::Log("Author's URL: https://jamiesharpe.co.uk");
+
+		GUI::GUI_Main::CreateHelpGUIWindow();
 
 		return XWF::Ordinary::XT_About_NoAction;
 	}

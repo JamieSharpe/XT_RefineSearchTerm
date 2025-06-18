@@ -49,7 +49,7 @@ LONG __stdcall XT_Init(DWORD nVersion, DWORD nFlags, HANDLE hMainWnd, struct XWF
 {
 	auto functionMetaData = XWF::Other::XT_RetrieveFunctionPointers();
 
-	JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(std::format(L" Initialising - {}", Build::BuildInfo::title), 0);
+	JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(std::format(L" Initialising - {}", Build::BuildInfo::appTitle), 0);
 
 	LONG returnValue = XWF::Core::XT_Init_Return_Abort;
 	returnValue = XWF::Core::XT_Init_Return_ThreadSafe;
@@ -60,7 +60,7 @@ LONG __stdcall XT_Init(DWORD nVersion, DWORD nFlags, HANDLE hMainWnd, struct XWF
 	{
 		JCS::Logging::SetupFileLogger();
 
-		JCS::Logging::Log(Build::BuildInfo::title);
+		JCS::Logging::Log(Build::BuildInfo::appTitle);
 
 		//JCS::Utils::LogExportedFunctions(functionMetaData);
 
@@ -508,7 +508,7 @@ int main(int argc, char** argv)
 	{
 		JCS::Logging::SetupFileLogger();
 
-		JCS::Logging::Log(Build::BuildInfo::title);
+		JCS::Logging::Log(Build::BuildInfo::appTitle);
 
 		JCS::Logging::Log("Function Start: 'Main'", JCS::Logging::LogLevel::Trace);
 
