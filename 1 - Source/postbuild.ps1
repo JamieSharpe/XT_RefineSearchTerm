@@ -7,15 +7,23 @@ Write-Host "============================"
 $app_name = $Args[0]
 $build_path = $Args[1]
 $app_build_configuration = $Args[2]
+$project_path = $Args[3]
 $XTensionFolder = "C:\Program Files\X-Ways Forensics\XTensions\" + $app_name + "\"
+$resource_path = $project_path + "Resources\"
 
 Write-Host "App name: $app_name"
+Write-Host "Project Path: $project_path"
+Write-Host "Resources Path: $resource_path"
 Write-Host "Build Path: $build_path"
 Write-Host "Configuration: $app_build_configuration"
 Write-Host "Xtension Folder: $XTensionFolder"
 Write-Host "Post-Build Script - $app_build_configuration Mode"
 
 # xcopy /y /d /f "$(OutDir)$(TargetFileName)" "C:\Program Files\X-Ways Forensics\XTensions"
+
+Write-Host "Copying Resource Folder to Build Location."
+
+Copy-Item $resource_path -Destination $build_path -Force -Recurse | Out-Null
 
 Write-Host "Creating XTension Folder."
 

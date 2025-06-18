@@ -264,9 +264,8 @@ namespace GUI::GUI_Main
 	{
 		JCS::Logging::Log("Help dialog - Initialising.", JCS::Logging::LogLevel::Trace);
 
-
 		/// Set the help text.
-		auto helpTextW = ReadFileToWString(L"C:/Users/Jamie Sharpe/Downloads/help.rtf");
+		auto helpTextW = ReadFileToWString(L"./Resources/Help.rtf");
 		auto helpText = JCS::Utils::ws2s(helpTextW);
 
 		SETTEXTEX setTextSettings = {};
@@ -304,7 +303,7 @@ namespace GUI::GUI_Main
 		JCS::Logging::Log("OK button clicked.", JCS::Logging::LogLevel::Trace);
 
 		/// Run close dialog commands.
-		IDD_MAIN_DIALOG_Closed(hDlg);
+		IDD_HELP_DIALOG_Closed(hDlg);
 		EndDialog(hDlg, 0);
 	}
 #pragma endregion HelpGUIEventHandlers
@@ -583,12 +582,25 @@ namespace GUI::GUI_Main
 	/// <returns>File content as wstring, or empty if error.</returns>
 	std::wstring ReadFileToWString(const std::wstring& filePath)
 	{
-		// return L"";
-		
-		std::wifstream file(filePath, std::ios::binary);
+		std::filesystem::path absolutePath = std::filesystem::absolute(filePath);
+		JCS::Logging::Log(std::format(L"Reading contents of file: {}", absolutePath.wstring()), JCS::Logging::LogLevel::Trace);
+
+		if (absolutePath.empty())
+		{
+			JCS::Logging::Log(L"File path is empty.", JCS::Logging::LogLevel::Error);
+			return L"";
+		}
+
+		if (!std::filesystem::exists(absolutePath))
+		{
+			JCS::Logging::Log(std::format(L"File does not exist: {}", absolutePath.wstring()), JCS::Logging::LogLevel::Error);
+			return L"";
+		}
+
+		std::wifstream file(absolutePath, std::ios::binary);
 		if (!file)
 		{
-			JCS::Logging::Log(std::format(L"Failed to open file: {}", filePath), JCS::Logging::LogLevel::Error);
+			JCS::Logging::Log(std::format(L"Failed to open file: {}", absolutePath.wstring()), JCS::Logging::LogLevel::Error);
 			return L"";
 		}
 

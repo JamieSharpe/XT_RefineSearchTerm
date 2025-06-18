@@ -81,7 +81,7 @@
       <Command>powershell -file "$(SolutionDir)..\prebuild.ps1"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>powershell -file "$(SolutionDir)..\postbuild.ps1" "$(ProjectName)" "$(OutDir)\" "$(ConfigurationName)"</Command>
+      <Command>powershell -file "$(SolutionDir)..\postbuild.ps1" "$(ProjectName)" "$(OutDir)\" "$(ConfigurationName)" "$(ProjectDir)\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -112,7 +112,7 @@
       <Command>powershell -file "$(SolutionDir)..\prebuild.ps1"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>powershell -file "$(SolutionDir)..\postbuild.ps1" "$(ProjectName)" "$(OutDir)\" "$(ConfigurationName)"</Command>
+      <Command>powershell -file "$(SolutionDir)..\postbuild.ps1" "$(ProjectName)" "$(OutDir)\" "$(ConfigurationName)" "$(ProjectDir)\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Exe|x64'">
@@ -136,7 +136,7 @@
       <Command>powershell -file "$(SolutionDir)..\prebuild.ps1"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>powershell -file "$(SolutionDir)..\postbuild.ps1" "$(ProjectName)" "$(OutDir)\" "$(ConfigurationName)"</Command>
+      <Command>powershell -file "$(SolutionDir)..\postbuild.ps1" "$(ProjectName)" "$(OutDir)\" "$(ConfigurationName)" "$(ProjectDir)\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <PropertyGroup Label="Vcpkg">
