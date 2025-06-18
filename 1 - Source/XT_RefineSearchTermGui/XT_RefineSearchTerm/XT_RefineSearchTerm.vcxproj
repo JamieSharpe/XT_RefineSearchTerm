@@ -218,6 +218,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Main\Exports.def" />
+    <None Include="Resources\Help.rtf">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\resource.h" />

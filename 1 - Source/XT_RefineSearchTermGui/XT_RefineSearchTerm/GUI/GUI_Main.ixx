@@ -3,6 +3,7 @@ module;
 #include <Windows.h>
 #include <shobjidl.h>
 #include <shlobj_core.h>
+#include <Richedit.h>
 #include "GUI/resource.h"
 
 export module GUI;
@@ -11,6 +12,7 @@ import std;
 import Logging;
 import Build;
 import Configuration;
+import Utils;
 
 /// <summary>
 /// Main GUI components for the X-Tension.
@@ -262,8 +264,17 @@ namespace GUI::GUI_Main
 	{
 		JCS::Logging::Log("Help dialog - Initialising.", JCS::Logging::LogLevel::Trace);
 
-		//std::wstring helpContent = L"help content.";
-		//SetDlgItemText(hDlg, IDC_Rtb_Help, helpContent.c_str());
+
+		/// Set the help text.
+		auto helpTextW = ReadFileToWString(L"C:/Users/Jamie Sharpe/Downloads/help.rtf");
+		auto helpText = JCS::Utils::ws2s(helpTextW);
+
+		SETTEXTEX setTextSettings = {};
+		setTextSettings.flags = ST_DEFAULT;// | ST_NEWCHARS | ST_UNICODE;
+		setTextSettings.codepage = 1200;
+
+		HWND h_Help_RichTextCtrl = GetDlgItem(hDlg, IDC_Rtb_Help);
+		SendMessage(h_Help_RichTextCtrl, EM_SETTEXTEX, (WPARAM)&setTextSettings, (LPARAM)helpText.c_str());
 	}
 
 	/// <summary>
