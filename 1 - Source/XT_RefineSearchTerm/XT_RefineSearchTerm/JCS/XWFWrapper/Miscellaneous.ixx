@@ -4,8 +4,9 @@ module;
 
 export module Miscellaneous;
 
-import XTension;
+import Logging;
 import Utils;
+import XTension;
 import std;
 
 /// <summary>
@@ -13,59 +14,94 @@ import std;
 /// </summary>
 export namespace JCS::XWFWrapper::Miscellaneous
 {
-    VOID XWF_OutputMessage(LPWSTR lpMessage, DWORD nFlags)
-    {
-        return XWF::Miscellaneous::XWF_OutputMessage(lpMessage, nFlags);
-    }
+	VOID XWF_OutputMessage(LPWSTR lpMessage, DWORD nFlags)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::Miscellaneous::XWF_OutputMessage, L"XWF_OutputMessage"))
+		{
+			return;
+		}
 
-    VOID XWF_OutputMessage(const char* message, DWORD nFlags)
-    {
-        std::wstring wideMessage = JCS::Utils::StringToWideString(message);
-        return JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(wideMessage.data(), nFlags);
-    }
+		return XWF::Miscellaneous::XWF_OutputMessage(lpMessage, nFlags);
+	}
 
-    VOID XWF_OutputMessage(const wchar_t* message, DWORD nFlags)
-    {
-        return JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage((LPWSTR)message, nFlags);
-    }
+	VOID XWF_OutputMessage(const char* message, DWORD nFlags)
+	{
+		std::wstring wideMessage = JCS::Utils::StringToWideString(message);
+		return JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(wideMessage.data(), nFlags);
+	}
 
-    VOID XWF_OutputMessage(const std::wstring& message, DWORD nFlags)
-    {
-        return JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(message.data(), nFlags);
-    }
+	VOID XWF_OutputMessage(const wchar_t* message, DWORD nFlags)
+	{
+		return JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage((LPWSTR)message, nFlags);
+	}
 
-    INT64 XWF_GetUserInput(LPWSTR lpMessage, LPWSTR lpBuffer, DWORD nBufferLen, DWORD nFlags)
-    {
-        return XWF::Miscellaneous::XWF_GetUserInput(lpMessage, lpBuffer, nBufferLen, nFlags);
-    }
+	VOID XWF_OutputMessage(const std::wstring& message, DWORD nFlags)
+	{
+		return JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(message.data(), nFlags);
+	}
 
-    VOID XWF_ShowProgress(LPWSTR lpCaption, DWORD nFlags)
-    {
-        return XWF::Miscellaneous::XWF_ShowProgress(lpCaption, nFlags);
-    }
+	std::optional<INT64> XWF_GetUserInput(LPWSTR lpMessage, LPWSTR lpBuffer, DWORD nBufferLen, DWORD nFlags)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::Miscellaneous::XWF_GetUserInput, L"XWF_GetUserInput"))
+		{
+			return std::nullopt;
+		}
 
-    VOID XWF_SetProgressPercentage(DWORD nPercent)
-    {
-        return XWF::Miscellaneous::XWF_SetProgressPercentage(nPercent);
-    }
+		return XWF::Miscellaneous::XWF_GetUserInput(lpMessage, lpBuffer, nBufferLen, nFlags);
+	}
 
-    VOID XWF_SetProgressDescription(LPWSTR lpStr)
-    {
-        return XWF::Miscellaneous::XWF_SetProgressDescription(lpStr);
-    }
+	VOID XWF_ShowProgress(LPWSTR lpCaption, DWORD nFlags)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::Miscellaneous::XWF_ShowProgress, L"XWF_ShowProgress"))
+		{
+			return;
+		}
 
-    BOOL XWF_ShouldStop()
-    {
-        return XWF::Miscellaneous::XWF_ShouldStop();
-    }
+		return XWF::Miscellaneous::XWF_ShowProgress(lpCaption, nFlags);
+	}
 
-    VOID XWF_HideProgress()
-    {
-        return XWF::Miscellaneous::XWF_HideProgress();
-    }
+	VOID XWF_SetProgressPercentage(DWORD nPercent)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::Miscellaneous::XWF_SetProgressPercentage, L"XWF_SetProgressPercentage"))
+		{
+			return;
+		}
 
-    BOOL XWF_ReleaseMem(PVOID lpBuffer)
-    {
-        return XWF::Miscellaneous::XWF_ReleaseMem(lpBuffer);
-    }
+		return XWF::Miscellaneous::XWF_SetProgressPercentage(nPercent);
+	}
+
+	VOID XWF_SetProgressDescription(LPWSTR lpStr)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::Miscellaneous::XWF_SetProgressDescription, L"XWF_SetProgressDescription"))
+		{
+			return;
+		}
+
+		return XWF::Miscellaneous::XWF_SetProgressDescription(lpStr);
+	}
+
+	std::optional<BOOL> XWF_ShouldStop()
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::Miscellaneous::XWF_ShouldStop, L"XWF_ShouldStop"))
+		{
+			return std::nullopt;
+		}
+
+		return XWF::Miscellaneous::XWF_ShouldStop();
+	}
+
+	VOID XWF_HideProgress()
+	{
+		return XWF::Miscellaneous::XWF_HideProgress();
+	}
+
+	std::optional<BOOL> XWF_ReleaseMem(PVOID lpBuffer)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::Miscellaneous::XWF_ReleaseMem, L"XWF_ReleaseMem"))
+		{
+			return std::nullopt;
+		}
+
+		return XWF::Miscellaneous::XWF_ReleaseMem(lpBuffer);
+	}
 }

@@ -3,15 +3,24 @@
 // Author: Jamie Sharpe
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "JCS/XWFWrapper/XWFWrapper.h"
+#include "GUI/resource.h"
 #include <Windows.h>
 
+import GUI;
 import Build;
-import XTension;
 import Logging;
 import Utils;
 import Main;
 import std;
+import XTension;
+import Miscellaneous;
+import Configuration;
+
+BOOL APIENTRY DllMain(HINSTANCE hInstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+	Build::BuildInfo::XW_HANDLEMain = hInstDLL;
+	return TRUE;
+}
 
 /// <summary>
 /// XT_Init
@@ -38,36 +47,77 @@ import std;
 /// <returns></returns>
 LONG __stdcall XT_Init(DWORD nVersion, DWORD nFlags, HANDLE hMainWnd, struct XWF::Core::LicenseInfo* pLicInfo)
 {
-    auto functionMetaData = XWF::Other::XT_RetrieveFunctionPointers();
+	auto functionMetaData = XWF::Other::XT_RetrieveFunctionPointers();
 
-    JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(std::format(L" Initialising - {}", Build::BuildInfo::title), 0);
+	JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(std::format(L" Initialising - {}", Build::BuildInfo::appTitle), 0);
 
-    LONG returnValue = XWF::Core::XT_Init_Return_Abort;
-    std::exception_ptr globalExceptionPointer;
-    try
-    {
-        JCS::Logging::SetupFileLogger();
+	LONG returnValue = XWF::Core::XT_Init_Return_Abort;
+	returnValue = XWF::Core::XT_Init_Return_ThreadSafe;
+	returnValue = 0;
 
-        JCS::Logging::Log(Build::BuildInfo::title);
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::SetupFileLogger();
 
-        JCS::Logging::Log("Function Start: 'XT_Init'", JCS::Logging::LogLevel::Trace);
+		JCS::Logging::Log(Build::BuildInfo::appTitle);
 
-        returnValue = XT_RefineSearchTerm::Main::Init(nVersion, nFlags, hMainWnd, pLicInfo);
+		//JCS::Utils::LogExportedFunctions(functionMetaData);
 
-        JCS::Logging::Log("Function End: 'XT_Init'", JCS::Logging::LogLevel::Trace);
-    }
-    catch (...)
-    {
-        /// Output to logger and directly to XWF output window in case it was the logger than threw the exception.
-        std::wstring message = L"FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_INIT'.";
-        JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(message.data(), 0);
-        JCS::Logging::Log(message, JCS::Logging::LogLevel::Critical);
-        globalExceptionPointer = std::current_exception();
-    }
+		JCS::Logging::Log("Function Start: 'XT_Init'", JCS::Logging::LogLevel::Trace);
 
-    bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+		returnValue = Main::Main::Init(nVersion, nFlags, hMainWnd, pLicInfo);
 
-    return returnValue;
+		JCS::Logging::Log("Function End: 'XT_Init'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		/// Output to logger and directly to XWF output window in case it was the logger than threw the exception.
+		std::wstring message = L"FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_INIT'.";
+		JCS::XWFWrapper::Miscellaneous::XWF_OutputMessage(message.data(), 0);
+		JCS::Logging::Log(message, JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
+
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+
+	return returnValue;
+}
+
+/// <summary>
+/// XT_Done
+/// 
+/// If exported (optional), will be called just before the DLL is unloaded to give you a chance to dispose any
+/// allocated memory, save certain usage data permanently for the next time your X-Tension is run, thank the user
+/// for choosing your product, or do other crazy stuff. You should return 0.
+/// nReserved: Currently always NULL.
+/// </summary>
+/// <param name="lpReserved"></param>
+/// <returns></returns>
+LONG __stdcall XT_Done(PVOID lpReserved)
+{
+
+	LONG returnValue = XWF::Core::XT_Done_NoAction;
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::Log("Function Start: 'XT_Done'", JCS::Logging::LogLevel::Trace);
+
+		returnValue = Main::Main::Done(lpReserved);
+
+		JCS::Logging::Log("Function End: 'XT_Done'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_Done'.", JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
+
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+
+	JCS::Logging::DestroyFileLogger();
+
+	return returnValue;
 }
 
 /// <summary>
@@ -86,25 +136,27 @@ LONG __stdcall XT_Init(DWORD nVersion, DWORD nFlags, HANDLE hMainWnd, struct XWF
 /// <returns></returns>
 LONG __stdcall XT_About(HANDLE hParentWnd, PVOID lpReserved)
 {
-    LONG returnValue = XWF::Ordinary::XT_About_NoAction;
-    std::exception_ptr globalExceptionPointer;
-    try
-    {
-        JCS::Logging::Log("Function Start: 'XT_About'", JCS::Logging::LogLevel::Trace);
+	LONG returnValue = XWF::Ordinary::XT_About_NoAction;
+	std::exception_ptr globalExceptionPointer;
 
-        returnValue = XT_RefineSearchTerm::Main::About(hParentWnd, lpReserved);
+	try
+	{
+		JCS::Logging::Log("Function Start: 'XT_About'", JCS::Logging::LogLevel::Trace);
 
-        JCS::Logging::Log("Function End: 'XT_About'", JCS::Logging::LogLevel::Trace);
-    }
-    catch (...)
-    {
-        JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_About'.", JCS::Logging::LogLevel::Critical);
-        globalExceptionPointer = std::current_exception();
-    }
+		returnValue = Main::Main::About(hParentWnd, lpReserved);
 
-    bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+		JCS::Logging::Log("Function End: 'XT_About'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_About'.", JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
 
-    return returnValue;
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+
+
+	return returnValue;
 }
 
 /// <summary>
@@ -164,51 +216,51 @@ LONG __stdcall XT_About(HANDLE hParentWnd, PVOID lpReserved)
 /// <returns></returns>
 LONG __stdcall XT_Prepare(HANDLE hVolume, HANDLE hEvidence, DWORD nOpType, PVOID lpReserved)
 {
-    LONG returnValue = XWF::Ordinary::XT_Prepare_NoAction;
-    std::exception_ptr globalExceptionPointer;
-    try
-    {
-        JCS::Logging::Log("Function Start: 'XT_Prepare'", JCS::Logging::LogLevel::Trace);
+	LONG returnValue = XWF::Ordinary::XT_Prepare_NoAction;
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::Log("Function Start: 'XT_Prepare'", JCS::Logging::LogLevel::Trace);
 
-        /// Error check for Volume Handle.
-        std::optional<HANDLE> hVolumeOpt = std::nullopt;
+		/// Error check for Volume Handle.
+		std::optional<HANDLE> hVolumeOpt = std::nullopt;
 
-        if (hVolume == nullptr)
-        {
-            hVolumeOpt = std::nullopt;
-            JCS::Logging::Log(L"Volume handle object is: " + JCS::Utils::OptionalValueToString(hVolumeOpt), JCS::Logging::LogLevel::Warning);
-        }
-        else
-        {
-            hVolumeOpt = hVolume;
-        }
+		if (hVolume == nullptr)
+		{
+			hVolumeOpt = std::nullopt;
+			JCS::Logging::Log(L"Volume handle object is: " + JCS::Utils::OptionalValueToString(hVolumeOpt), JCS::Logging::LogLevel::Warning);
+		}
+		else
+		{
+			hVolumeOpt = hVolume;
+		}
 
-        /// Error check for Evidence Handle.
-        std::optional<HANDLE> hEvidenceOpt = std::nullopt;
+		/// Error check for Evidence Handle.
+		std::optional<HANDLE> hEvidenceOpt = std::nullopt;
 
-        if (hEvidence == nullptr)
-        {
-            hEvidenceOpt = std::nullopt;
-            JCS::Logging::Log(L"Evidence handle object is: " + JCS::Utils::OptionalValueToString(hEvidenceOpt), JCS::Logging::LogLevel::Warning);
-        }
-        else
-        {
-            hEvidenceOpt = hEvidence;
-        }
+		if (hEvidence == nullptr)
+		{
+			hEvidenceOpt = std::nullopt;
+			JCS::Logging::Log(L"Evidence handle object is: " + JCS::Utils::OptionalValueToString(hEvidenceOpt), JCS::Logging::LogLevel::Warning);
+		}
+		else
+		{
+			hEvidenceOpt = hEvidence;
+		}
 
-        returnValue = XT_RefineSearchTerm::Main::Prepare(hVolumeOpt, hEvidenceOpt, nOpType, lpReserved);
+		returnValue = Main::Main::Prepare(hVolumeOpt, hEvidenceOpt, nOpType, lpReserved);
 
-        JCS::Logging::Log("Function End: 'XT_Prepare'", JCS::Logging::LogLevel::Trace);
-    }
-    catch (...)
-    {
-        JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_Prepare'.", JCS::Logging::LogLevel::Critical);
-        globalExceptionPointer = std::current_exception();
-    }
+		JCS::Logging::Log("Function End: 'XT_Prepare'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_Prepare'.", JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
 
-    bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
 
-    return returnValue;
+	return returnValue;
 }
 
 /// <summary>
@@ -226,51 +278,146 @@ LONG __stdcall XT_Prepare(HANDLE hVolume, HANDLE hEvidence, DWORD nOpType, PVOID
 /// <returns></returns>
 LONG __stdcall XT_Finalize(HANDLE hVolume, HANDLE hEvidence, DWORD nOpType, PVOID lpReserved)
 {
-    LONG returnValue = XWF::Ordinary::XT_Finalize_NoAction;
-    std::exception_ptr globalExceptionPointer;
-    try
-    {
-        JCS::Logging::Log("Function Start: 'XT_Finalize'", JCS::Logging::LogLevel::Trace);
+	LONG returnValue = XWF::Ordinary::XT_Finalize_NoAction;
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::Log("Function Start: 'XT_Finalize'", JCS::Logging::LogLevel::Trace);
 
-        /// Error check for Volume Handle.
-        std::optional<HANDLE> hVolumeOpt = std::nullopt;
+		/// Error check for Volume Handle.
+		std::optional<HANDLE> hVolumeOpt = std::nullopt;
 
-        if (hVolume == nullptr)
-        {
-            hVolumeOpt = std::nullopt;
-            JCS::Logging::Log(std::format(L"Volume handle object is: {}", JCS::Utils::OptionalValueToString(hVolumeOpt)), JCS::Logging::LogLevel::Warning);
-        }
-        else
-        {
-            hVolumeOpt = hVolume;
-        }
+		if (hVolume == nullptr)
+		{
+			hVolumeOpt = std::nullopt;
+			JCS::Logging::Log(std::format(L"Volume handle object is: {}", JCS::Utils::OptionalValueToString(hVolumeOpt)), JCS::Logging::LogLevel::Warning);
+		}
+		else
+		{
+			hVolumeOpt = hVolume;
+		}
 
-        /// Error check for Evidence Handle.
-        std::optional<HANDLE> hEvidenceOpt = std::nullopt;
+		/// Error check for Evidence Handle.
+		std::optional<HANDLE> hEvidenceOpt = std::nullopt;
 
-        if (hEvidence == nullptr)
-        {
-            hEvidenceOpt = std::nullopt;
-            JCS::Logging::Log(std::format(L"Evidence handle object is: {}", JCS::Utils::OptionalValueToString(hEvidenceOpt)), JCS::Logging::LogLevel::Warning);
-        }
-        else
-        {
-            hEvidenceOpt = hEvidence;
-        }
+		if (hEvidence == nullptr)
+		{
+			hEvidenceOpt = std::nullopt;
+			JCS::Logging::Log(std::format(L"Evidence handle object is: {}", JCS::Utils::OptionalValueToString(hEvidenceOpt)), JCS::Logging::LogLevel::Warning);
+		}
+		else
+		{
+			hEvidenceOpt = hEvidence;
+		}
 
-        returnValue = XT_RefineSearchTerm::Main::Finalize(hVolumeOpt, hEvidenceOpt, nOpType, lpReserved);
+		returnValue = Main::Main::Finalize(hVolumeOpt, hEvidenceOpt, nOpType, lpReserved);
 
-        JCS::Logging::Log("Function End: 'XT_Finalize'", JCS::Logging::LogLevel::Trace);
-    }
-    catch (...)
-    {
-        JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_Finalize'.", JCS::Logging::LogLevel::Critical);
-        globalExceptionPointer = std::current_exception();
-    }
+		JCS::Logging::Log("Function End: 'XT_Finalize'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_Finalize'.", JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
 
-    bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
 
-    return returnValue;
+	return returnValue;
+}
+
+/// <summary>
+/// XT_ProcessItem
+/// 
+/// If exported (optional) and if wanted by XT_Prepare(), will be called for each file in the volume snapshot
+/// that is targeted for refinement or selected and targeted with the directory browser context menu.
+/// Implement and export this function if you merely need to retrieve information about the file and don't
+/// need to read its data. There is a slight performance benefit if the user does not select other refinement
+/// operations that need to read the file's data, i.e. you save a little bit time if a file does not need to
+/// opened for reading. By calling XWF_OpenItem(), you can still open the file to read its data if needed on
+/// a case-by-case basis.
+/// 
+/// Return:
+/// -1	if you want X-Ways Forensics to stop the current operation(e.g.volume snapshot refinement), 
+/// -2	if you want X-Ways Forensics to skip its own volume snapshot refinement operations for this file(e.g.to 
+///		save time if you have determined a file to be of no interest),
+/// 0	Otherwise.
+/// </summary>
+/// <param name="nItemID">X-Ways Item ID Number.</param>
+/// <param name="lpReserved">Currently always NULL.</param>
+/// <returns></returns>
+LONG __stdcall XT_ProcessItem(LONG nItemID, PVOID lpReserved)
+{
+	if (JCS::XWFWrapper::Miscellaneous::XWF_ShouldStop())
+	{
+		JCS::Logging::Log("Function Ended Prematurely at XWays Request: 'XT_ProcessItem'", JCS::Logging::LogLevel::Warning);
+		return XWF::Ordinary::XT_ProcessItem_StopOperation;
+	}
+
+	LONG returnValue = XWF::Ordinary::XT_ProcessItem_ContinueOperation;
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::Log("Function Start: 'XT_ProcessItem'", JCS::Logging::LogLevel::Trace);
+
+		returnValue = Main::Main::ProcessItem(nItemID, lpReserved);
+
+		JCS::Logging::Log("Function End: 'XT_ProcessItem'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_ProcessItem'.", JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
+
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+
+	return returnValue;
+}
+
+/// <summary>
+/// XT_ProcessItemEx
+/// 
+///  If exported (optional) and if wanted by XT_Prepare(), will be called for each item (file or directory) in the volume snapshot
+/// that is targeted for refinement or selected and targeted with the directory browser context menu. A file will be opened for
+/// reading prior to the function call. Implement and export this function if you need to read the item's data, which you can do by
+/// calling the XWF_Read() function, to which you supply the hItem parameter.
+/// 
+/// Return:
+/// -1	if you want X-Ways Forensics to stop the current operation (e.g. volume snapshot refinement),
+/// 0	Otherwise.
+/// </summary>
+/// <param name="nItemID"></param>
+/// <param name="hItem"></param>
+/// <param name="lpReserved">Currently always NULL.</param>
+/// <returns></returns>
+LONG __stdcall XT_ProcessItemEx(LONG nItemID, HANDLE hItem, PVOID lpReserved)
+{
+	if (JCS::XWFWrapper::Miscellaneous::XWF_ShouldStop())
+	{
+		JCS::Logging::Log("Function Ended Prematurely at XWays Request: 'XT_ProcessItemEx'", JCS::Logging::LogLevel::Warning);
+
+		return XWF::Ordinary::XT_ProcessItem_StopOperation;
+	}
+
+	LONG returnValue = XWF::Ordinary::XT_ProcessItem_ContinueOperation;
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::Log("Function Start: 'XT_ProcessItemEx'", JCS::Logging::LogLevel::Trace);
+
+		returnValue = Main::Main::ProcessItemEx(nItemID, hItem, lpReserved);
+
+		JCS::Logging::Log("Function End: 'XT_ProcessItemEx'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_ProcessItemEx'.", JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
+
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+
+	return returnValue;
 }
 
 /// <summary>
@@ -293,25 +440,25 @@ LONG __stdcall XT_Finalize(HANDLE hVolume, HANDLE hEvidence, DWORD nOpType, PVOI
 /// <returns></returns>
 LONG __stdcall XT_PrepareSearch(struct XWF::Ordinary::PrepareSearchInfo* pPSInfo, struct XWF::Search::CodePages* CPages)
 {
-    LONG returnValue = XWF::Ordinary::XT_PrepareSearch_NoAdjustmentMade;
-    std::exception_ptr globalExceptionPointer;
-    try
-    {
-        JCS::Logging::Log("Function Start: 'XT_PrepareSearch'", JCS::Logging::LogLevel::Trace);
+	LONG returnValue = XWF::Ordinary::XT_PrepareSearch_NoAdjustmentMade;
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::Log("Function Start: 'XT_PrepareSearch'", JCS::Logging::LogLevel::Trace);
 
-        returnValue = XT_RefineSearchTerm::Main::PrepareSearch(pPSInfo, CPages);
+		returnValue = Main::Main::PrepareSearch(pPSInfo, CPages);
 
-        JCS::Logging::Log("Function End: 'XT_PrepareSearch'", JCS::Logging::LogLevel::Trace);
-    }
-    catch (...)
-    {
-        JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_PrepareSearch'.", JCS::Logging::LogLevel::Critical);
-        globalExceptionPointer = std::current_exception();
-    }
+		JCS::Logging::Log("Function End: 'XT_PrepareSearch'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_PrepareSearch'.", JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
 
-    bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
 
-    return returnValue;
+	return returnValue;
 }
 
 /// <summary>
@@ -325,23 +472,62 @@ LONG __stdcall XT_PrepareSearch(struct XWF::Ordinary::PrepareSearchInfo* pPSInfo
 /// <returns></returns>
 LONG __stdcall XT_ProcessSearchHit(XWF::Search::SearchHitInfo* info)
 {
-    LONG returnValue = XWF::Ordinary::XT_ProcessSearchHit_NoFurtherAction;
-    std::exception_ptr globalExceptionPointer;
-    try
-    {
-        JCS::Logging::Log("Function Start: 'XT_ProcessSearchHit'", JCS::Logging::LogLevel::Trace);
+	LONG returnValue = XWF::Ordinary::XT_ProcessSearchHit_NoFurtherAction;
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::Log("Function Start: 'XT_ProcessSearchHit'", JCS::Logging::LogLevel::Trace);
 
-        returnValue = XT_RefineSearchTerm::Main::ProcessSearchHit(info);
+		returnValue = Main::Main::ProcessSearchHit(info);
 
-        JCS::Logging::Log("Function End: 'XT_ProcessSearchHit'", JCS::Logging::LogLevel::Trace);
-    }
-    catch (...)
-    {
-        JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_ProcessSearchHit'.", JCS::Logging::LogLevel::Critical);
-        globalExceptionPointer = std::current_exception();
-    }
+		JCS::Logging::Log("Function End: 'XT_ProcessSearchHit'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		JCS::Logging::Log("FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'XT_ProcessSearchHit'.", JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
 
-    bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
 
-    return returnValue;
+	return returnValue;
+}
+
+/// <summary>
+/// Main entry point for the application when run in Debug_Exe configuration.
+/// </summary>
+/// <param name="argc"></param>
+/// <param name="argv"></param>
+/// <returns></returns>
+int main(int argc, char** argv)
+{
+	int returnValue = 0;
+
+	std::exception_ptr globalExceptionPointer;
+	try
+	{
+		JCS::Logging::SetupFileLogger();
+
+		JCS::Logging::Log(Build::BuildInfo::appTitle);
+
+		JCS::Logging::Log("Function Start: 'Main'", JCS::Logging::LogLevel::Trace);
+
+		returnValue = Main::Main::Main(argc, argv);
+
+		JCS::Logging::Log("Function End: 'Main'", JCS::Logging::LogLevel::Trace);
+	}
+	catch (...)
+	{
+		/// Output to logger and directly to XWF output window in case it was the logger than threw the exception.
+		std::wstring message = L"FATAL ERROR: GLOBAL CATCH ALL EXCEPTIONS ENGAGED - 'Main'.";
+		std::wcout << message << std::endl;
+		JCS::Logging::Log(message, JCS::Logging::LogLevel::Critical);
+		globalExceptionPointer = std::current_exception();
+	}
+
+	bool handledException = JCS::Utils::HandleExceptionPtr(globalExceptionPointer);
+
+	JCS::Logging::DestroyFileLogger();
+
+	return returnValue;
 }

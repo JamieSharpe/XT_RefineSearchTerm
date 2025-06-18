@@ -1,7 +1,10 @@
 EXPORTS
 XT_Init
+XT_Done
 XT_About
 XT_Prepare
 XT_PrepareSearch
 XT_Finalize
+XT_ProcessItem
+XT_ProcessItemEx
 XT_ProcessSearchHit

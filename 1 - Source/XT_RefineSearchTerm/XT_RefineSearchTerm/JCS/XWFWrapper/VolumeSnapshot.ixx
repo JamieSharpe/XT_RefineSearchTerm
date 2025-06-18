@@ -4,6 +4,7 @@ module;
 
 export module VolumeSnapshot;
 
+import Utils;
 import XTension;
 import std;
 
@@ -12,100 +13,150 @@ import std;
 /// </summary>
 export namespace JCS::XWFWrapper::VolumeSnapshot
 {
-    LONG XWF_SelectVolumeSnapshot(HANDLE hVolume)
-    {
-        return XWF::VolumeSnapshot::XWF_SelectVolumeSnapshot(hVolume);
-    }
+	std::optional<LONG> XWF_SelectVolumeSnapshot(HANDLE hVolume)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_SelectVolumeSnapshot, L"XWF_SelectVolumeSnapshot"))
+		{
+			return std::nullopt;
+		}
 
-    std::optional<INT64> XWF_GetVSProp(LONG nPropType, PVOID pBuffer)
-    {
-        auto returnedValue = XWF::VolumeSnapshot::XWF_GetVSProp(nPropType, pBuffer);
+		return XWF::VolumeSnapshot::XWF_SelectVolumeSnapshot(hVolume);
+	}
 
-        if (returnedValue == -1)
-        {
-            return std::nullopt;
-        }
+	std::optional<INT64> XWF_GetVSProp(LONG nPropType, PVOID pBuffer)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_GetVSProp, L"XWF_GetVSProp"))
+		{
+			return std::nullopt;
+		}
 
-        return returnedValue;
-    }
+		auto returnedValue = XWF::VolumeSnapshot::XWF_GetVSProp(nPropType, pBuffer);
 
-    std::optional<INT64> XWF_GetVSProp_GetSpecialItemID(XWF::VolumeSnapshot::XWF_GetVSProp_SpecialItem specialItem)
-    {
-        auto returnedValue = JCS::XWFWrapper::VolumeSnapshot::XWF_GetVSProp(XWF::VolumeSnapshot::XWF_GetVSProp_PropType_GetSpecialItemID, &specialItem);
+		if (returnedValue == -1)
+		{
+			return std::nullopt;
+		}
 
-        if (!returnedValue)
-        {
-            return std::nullopt;
-        }
+		return returnedValue;
+	}
 
-        return returnedValue;
-    }
+	std::optional<INT64> XWF_GetVSProp_GetSpecialItemID(XWF::VolumeSnapshot::XWF_GetVSProp_SpecialItem specialItem)
+	{
+		auto returnedValue = JCS::XWFWrapper::VolumeSnapshot::XWF_GetVSProp(XWF::VolumeSnapshot::XWF_GetVSProp_PropType_GetSpecialItemID, &specialItem);
 
-    std::optional<XWF::Miscellaneous::XW_HashType> XWF_GetVSProp_GetHashOneType()
-    {
-        auto returnedValue = JCS::XWFWrapper::VolumeSnapshot::XWF_GetVSProp(XWF::VolumeSnapshot::XWF_GetVSProp_PropType_GetHashOneType, nullptr);
+		if (!returnedValue)
+		{
+			return std::nullopt;
+		}
 
-        if (!returnedValue)
-        {
-            return std::nullopt;
-        }
+		return returnedValue;
+	}
 
-        std::optional<XWF::Miscellaneous::XW_HashType> hashType = static_cast<XWF::Miscellaneous::XW_HashType>(returnedValue.value());
+	std::optional<XWF::Miscellaneous::XW_HashType> XWF_GetVSProp_GetHashOneType()
+	{
+		auto returnedValue = JCS::XWFWrapper::VolumeSnapshot::XWF_GetVSProp(XWF::VolumeSnapshot::XWF_GetVSProp_PropType_GetHashOneType, nullptr);
 
-        return hashType;
-    }
+		if (!returnedValue)
+		{
+			return std::nullopt;
+		}
 
-    std::optional<XWF::Miscellaneous::XW_HashType> XWF_GetVSProp_GetHashTwoType()
-    {
-        auto returnedValue = JCS::XWFWrapper::VolumeSnapshot::XWF_GetVSProp(XWF::VolumeSnapshot::XWF_GetVSProp_PropType_GetHashTwoType, nullptr);
+		std::optional<XWF::Miscellaneous::XW_HashType> hashType = static_cast<XWF::Miscellaneous::XW_HashType>(returnedValue.value());
 
-        if (!returnedValue)
-        {
-            return std::nullopt;
-        }
+		return hashType;
+	}
 
-        std::optional<XWF::Miscellaneous::XW_HashType> hashType = static_cast<XWF::Miscellaneous::XW_HashType>(returnedValue.value());
+	std::optional<XWF::Miscellaneous::XW_HashType> XWF_GetVSProp_GetHashTwoType()
+	{
+		auto returnedValue = JCS::XWFWrapper::VolumeSnapshot::XWF_GetVSProp(XWF::VolumeSnapshot::XWF_GetVSProp_PropType_GetHashTwoType, nullptr);
 
-        return hashType;
-    }
+		if (!returnedValue)
+		{
+			return std::nullopt;
+		}
 
-    DWORD XWF_GetItemCount(LPVOID pTarget)
-    {
-        return XWF::VolumeSnapshot::XWF_GetItemCount(pTarget);
-    }
+		std::optional<XWF::Miscellaneous::XW_HashType> hashType = static_cast<XWF::Miscellaneous::XW_HashType>(returnedValue.value());
 
-    DWORD XWF_GetFileCount(LONG nDirID)
-    {
-        return XWF::VolumeSnapshot::XWF_GetFileCount(nDirID);
-    }
+		return hashType;
+	}
 
-    LONG XWF_GetSpecialItemID(DWORD nSpecialItem)
-    {
-        return XWF::VolumeSnapshot::XWF_GetSpecialItemID(nSpecialItem);
-    }
+	std::optional<DWORD> XWF_GetItemCount(LPVOID pTarget)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_GetItemCount, L"XWF_GetItemCount"))
+		{
+			return std::nullopt;
+		}
 
-    LONG XWF_CreateItem(LPWSTR lpName, DWORD nCreationFlags)
-    {
-        return XWF::VolumeSnapshot::XWF_CreateItem(lpName, nCreationFlags);
-    }
+		return XWF::VolumeSnapshot::XWF_GetItemCount(pTarget);
+	}
 
-    LONG XWF_CreateFile(LPWSTR pName, DWORD nCreationFlags, LONG nParentItemID, PVOID pSourceInfo)
-    {
-        return XWF::VolumeSnapshot::XWF_CreateFile(pName, nCreationFlags, nParentItemID, pSourceInfo);
-    }
+	std::optional<DWORD> XWF_GetFileCount(LONG nDirID)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_GetFileCount, L"XWF_GetFileCount"))
+		{
+			return std::nullopt;
+		}
 
-    LONG XWF_FindItem1(LONG nParentItemID, LPWSTR lpName, DWORD nFlags, LONG nSearchStartItemID)
-    {
-        return XWF::VolumeSnapshot::XWF_FindItem1(nParentItemID, lpName, nFlags, nSearchStartItemID);
-    }
+		return XWF::VolumeSnapshot::XWF_GetFileCount(nDirID);
+	}
 
-    BOOL XWF_Mount(LONG nDirID, LPWSTR lpMountPath, LPVOID lpReserved)
-    {
-        return XWF::VolumeSnapshot::XWF_Mount(nDirID, lpMountPath, lpReserved);
-    }
+	std::optional<LONG> XWF_GetSpecialItemID(DWORD nSpecialItem)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_GetSpecialItemID, L"XWF_GetSpecialItemID"))
+		{
+			return std::nullopt;
+		}
 
-    BOOL XWF_Unmount(LPWSTR lpMountPath)
-    {
-        return XWF::VolumeSnapshot::XWF_Unmount(lpMountPath);
-    }
+		return XWF::VolumeSnapshot::XWF_GetSpecialItemID(nSpecialItem);
+	}
+
+	std::optional<LONG> XWF_CreateItem(LPWSTR lpName, DWORD nCreationFlags)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_CreateItem, L"XWF_CreateItem"))
+		{
+			return std::nullopt;
+		}
+
+		return XWF::VolumeSnapshot::XWF_CreateItem(lpName, nCreationFlags);
+	}
+
+	std::optional<LONG> XWF_CreateFile(LPWSTR pName, DWORD nCreationFlags, LONG nParentItemID, PVOID pSourceInfo)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_CreateFile, L"XWF_CreateFile"))
+		{
+			return std::nullopt;
+		}
+
+		return XWF::VolumeSnapshot::XWF_CreateFile(pName, nCreationFlags, nParentItemID, pSourceInfo);
+	}
+
+	std::optional<LONG> XWF_FindItem1(LONG nParentItemID, LPWSTR lpName, DWORD nFlags, LONG nSearchStartItemID)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_FindItem1, L"XWF_FindItem1"))
+		{
+			return std::nullopt;
+		}
+
+		return XWF::VolumeSnapshot::XWF_FindItem1(nParentItemID, lpName, nFlags, nSearchStartItemID);
+	}
+
+	std::optional<BOOL> XWF_Mount(LONG nDirID, LPWSTR lpMountPath, LPVOID lpReserved)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_Mount, L"XWF_Mount"))
+		{
+			return std::nullopt;
+		}
+
+		return XWF::VolumeSnapshot::XWF_Mount(nDirID, lpMountPath, lpReserved);
+	}
+
+	std::optional<BOOL> XWF_Unmount(LPWSTR lpMountPath)
+	{
+		if (JCS::Utils::FunctionPointerIsNull(XWF::VolumeSnapshot::XWF_Unmount, L"XWF_Unmount"))
+		{
+			return std::nullopt;
+		}
+
+		return XWF::VolumeSnapshot::XWF_Unmount(lpMountPath);
+	}
 }

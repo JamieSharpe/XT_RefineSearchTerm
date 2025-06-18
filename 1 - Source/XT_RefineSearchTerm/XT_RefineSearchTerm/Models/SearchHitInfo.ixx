@@ -1,135 +1,165 @@
 module;
 
-#include "JCS/XWFWrapper/XWFWrapper.h"
 #include <Windows.h>
 
 export module SearchHitInfo;
 
-import std;
-import XTension;
 import Logging;
 import Utils;
 import ItemObject;
 import VolumeObject;
+import Configuration;
+import Search;
+import XTension;
+import std;
 
 namespace Models
 {
-    export class SearchHitInfo
-    {
-    private:
-    public:
-        XWF::Search::SearchHitInfo* info = nullptr;
-        std::shared_ptr<Models::VolumeObject> ParentVolume;
-        std::wstring searchHitExcerpt = std::wstring();
-        double printablePercentage = 0;
-        int positiveChars = 0;
-        long long stringLengthWithoutSearchTerm = 0;
-        int dataPrePostRead = 0;
+	export class SearchHitInfo
+	{
+	private:
+	public:
+		XWF::Search::SearchHitInfo* info = nullptr;
+		std::shared_ptr<Models::VolumeObject> ParentVolume;
+		std::wstring searchHitExcerpt = std::wstring();
+		double printablePercentage = 0;
+		int positiveChars = 0;
+		long long stringLengthWithoutSearchTerm = 0;
+		int dataPrePostRead = 0;
 
-        SearchHitInfo(XWF::Search::SearchHitInfo* info, std::shared_ptr<Models::VolumeObject> volume, int dataPrePostRead = 0)
-        {
-            this->info = info;
-            this->ParentVolume = volume;
-            this->dataPrePostRead = dataPrePostRead;
-            Initialise();
-        }
+		SearchHitInfo(XWF::Search::SearchHitInfo* info, std::shared_ptr<Models::VolumeObject> volume, int dataPrePostRead)
+		{
+			this->info = info;
+			this->ParentVolume = volume;
+			this->dataPrePostRead = dataPrePostRead;
+			Initialise();
+		}
 
-        void Initialise()
-        {
-            searchHitExcerpt = GetSearchHitExcerpt();
+		void Initialise()
+		{
+			searchHitExcerpt = GetSearchHitExcerpt().value_or(L"");
 
-            CalculatePositiveChars();
+			CalculatePositiveChars();
 
-            stringLengthWithoutSearchTerm = searchHitExcerpt.length() - info->nLength;
+			stringLengthWithoutSearchTerm = searchHitExcerpt.length() - info->nLength;
 
-            printablePercentage = (double)positiveChars / (double)searchHitExcerpt.length();
-            printablePercentage = printablePercentage * 100;
-        }
+			printablePercentage = (double)positiveChars / (double)searchHitExcerpt.length();
+			printablePercentage = printablePercentage * 100;
+		}
 
-        std::wstring GetSearchHitExcerpt()
-        {
-            std::unique_ptr<Models::ItemObject> item = std::make_unique<Models::ItemObject>(info->nItemID, ParentVolume);
+		std::optional<std::wstring> GetSearchHitExcerpt()
+		{
+			std::unique_ptr<Models::ItemObject> item = std::make_unique<Models::ItemObject>(info->nItemID, ParentVolume);
 
-            INT64 startOffsetBuffer = info->nRelOfs - dataPrePostRead;
-            if (startOffsetBuffer < 0)
-            {
-                startOffsetBuffer = 0;
-            }
+			INT64 startOffsetBuffer = info->nRelOfs - dataPrePostRead;
+			if (startOffsetBuffer < 0)
+			{
+				startOffsetBuffer = 0;
+			}
 
-            INT64 endOffsetBuffer = info->nRelOfs + info->nLength + dataPrePostRead;
-            INT64 fileSizeWithSlack = item->GetFileSizeWithSlack();
-            if (endOffsetBuffer > fileSizeWithSlack)
-            {
-                endOffsetBuffer = fileSizeWithSlack;
-            }
+			INT64 endOffsetBuffer = info->nRelOfs + info->nLength + dataPrePostRead;
+			std::optional<INT64> fileSizeWithSlack = item->GetFileSizeWithSlack();
 
-            INT64 readSize = endOffsetBuffer - startOffsetBuffer;
+			if (!fileSizeWithSlack)
+			{
+				return std::nullopt;
+			}
 
-            std::unique_ptr<char[]> readBytes = item->GetFileExcerpt(startOffsetBuffer, readSize);
+			if (endOffsetBuffer > fileSizeWithSlack.value())
+			{
+				endOffsetBuffer = fileSizeWithSlack.value();
+			}
 
-            std::unique_ptr<char[]> readBytesNoNulls = std::make_unique<char[]>(readSize);
+			INT64 readSize = endOffsetBuffer - startOffsetBuffer;
 
-            for (int i = 0, j = 0; i < readSize; i++)
-            {
-                if (readBytes[i] != '\0')
-                {
-                    readBytesNoNulls[j] = readBytes[i];
-                    j++;
-                }
-            }
+			std::unique_ptr<char[]> readBytes = item->GetFileExcerpt(startOffsetBuffer, readSize);
 
-            std::wstring convertedToString = JCS::Utils::b2ws(readBytesNoNulls.get(), info->nCodePage);
+			std::unique_ptr<char[]> readBytesNoNulls = std::make_unique<char[]>(readSize);
 
-            return convertedToString;
-        }
+			for (int i = 0, j = 0; i < readSize; i++)
+			{
+				if (readBytes[i] != '\0')
+				{
+					readBytesNoNulls[j] = readBytes[i];
+					j++;
+				}
+			}
 
-        void CalculatePositiveChars()
-        {
-            positiveChars = 0;
-            for (WCHAR c : searchHitExcerpt)
-            {
-                if (((c >= 32) && (c <= 126)) || (c == 10) || (c == 13) || (c == 9))
-                {
-                    positiveChars++;
-                }
-            }
-        }
+			std::wstring convertedToString = JCS::Utils::b2ws(readBytesNoNulls.get(), info->nCodePage);
 
-        void Log()
-        {
-            JCS::Logging::Log(L"Search Hit Info:");
-            JCS::Logging::Log(std::format(L"\tnSize: {}", info->nSize));
-            JCS::Logging::Log(std::format(L"\tnItemID: {}", info->nItemID));
-            JCS::Logging::Log(std::format(L"\tnRelOfs: {}", info->nRelOfs));
-            JCS::Logging::Log(std::format(L"\tnAbsOfs: {}", info->nAbsOfs));
-            JCS::Logging::Log(std::format(L"\tlpOptionalHitPtr: {}", info->lpOptionalHitPtr));
-            JCS::Logging::Log(std::format(L"\tnSearchTermID: {}", info->nSearchTermID));
-            JCS::Logging::Log(std::format(L"\tnLength: {}", info->nLength));
-            JCS::Logging::Log(std::format(L"\tnCodePage: {}", info->nCodePage));
-            JCS::Logging::Log(std::format(L"\tnFlags: {}", info->nFlags));
-            JCS::Logging::Log(std::format(L"\thOptionalItemOrVolume: {}", info->hOptionalItemOrVolume));
+			return convertedToString;
+		}
 
-            JCS::Logging::Log(std::format(L"\tFile Excerpt: {}", searchHitExcerpt));
-            JCS::Logging::Log(std::format(L"\tPositive Chars: {}", positiveChars));
-            JCS::Logging::Log(std::format(L"\tString Length no Search Term: {}", stringLengthWithoutSearchTerm));
-            JCS::Logging::Log(std::format(L"\tPrintable Chars %: {}", printablePercentage));
-        }
+		void CalculatePositiveChars()
+		{
+			positiveChars = 0;
+			for (WCHAR c : searchHitExcerpt)
+			{
+				if (((c >= 32) && (c <= 126)) || (c == 10) || (c == 13) || (c == 9))
+				{
+					positiveChars++;
+				}
+			}
+		}
 
-        /// <summary>
-        /// Discard the result if the printable character percentage is less than the provided value.
-        /// </summary>
-        /// <param name="percentageThreshold"></param>
-        void DiscardResult(double percentageThreshold)
-        {
-            if (printablePercentage < percentageThreshold)
-            {
-                JCS::Logging::Log(std::format("Readable characters in excerpt did not meet the required percentage: {:.2f}/{}", printablePercentage, percentageThreshold), JCS::Logging::LogLevel::Debug);
-                info->nFlags |= XWF::Search::XWF_SearchHitInfo_Flag_Deleted; // Discard the result.
-            }
-            else
-            {
-                JCS::Logging::Log(std::format("Readable characters in excerpt met the required percentage: {:.2f}/{}. Item added to search hits.", printablePercentage, percentageThreshold), JCS::Logging::LogLevel::Debug);
-            }
-        }
-    };
+		void Log()
+		{
+			JCS::Logging::Log(L"Search Hit Info:");
+			JCS::Logging::Log(std::format(L"\tnSize: {}", info->nSize));
+			JCS::Logging::Log(std::format(L"\tnItemID: {}", info->nItemID));
+			JCS::Logging::Log(std::format(L"\tnRelOfs: {}", info->nRelOfs));
+			JCS::Logging::Log(std::format(L"\tnAbsOfs: {}", info->nAbsOfs));
+			JCS::Logging::Log(std::format(L"\tlpOptionalHitPtr: {}", info->lpOptionalHitPtr));
+			// The below commented line is not reliable. As the docs say, don't assume how many bytes before or after may be read. Use the searchHitExcerpt.
+			//JCS::Logging::Log(std::format(L"\tlpOptionalHitPtrDeRef: {}", JCS::Utils::LPWStrToWString((LPWSTR)info->lpOptionalHitPtr)));
+			JCS::Logging::Log(std::format(L"\tnSearchTermID: {}", info->nSearchTermID));
+			JCS::Logging::Log(std::format(L"\tnLength: {}", info->nLength));
+			JCS::Logging::Log(std::format(L"\tnCodePage: {}", info->nCodePage));
+			JCS::Logging::Log(std::format(L"\tnFlags: {}", info->nFlags));
+			JCS::Logging::Log(std::format(L"\thOptionalItemOrVolume: {}", info->hOptionalItemOrVolume));
+
+			JCS::Logging::Log(std::format(L"\tFile Excerpt: {}", searchHitExcerpt));
+			JCS::Logging::Log(std::format(L"\tPositive Chars: {}", positiveChars));
+			JCS::Logging::Log(std::format(L"\tString Length no Search Term: {}", stringLengthWithoutSearchTerm));
+			JCS::Logging::Log(std::format(L"\tPrintable Chars %: {}", printablePercentage));
+		}
+
+		/// <summary>
+		/// Discard the result if the printable character percentage is less than the provided value.
+		/// </summary>
+		/// <param name="percentageThreshold"></param>
+		void ProcessResult()
+		{
+			if (printablePercentage < Models::Configuration::printablePercentRequired)
+			{
+				JCS::Logging::Log(std::format("Readable characters in excerpt did not meet the required percentage: {:.2f}/{}", printablePercentage, Models::Configuration::printablePercentRequired), JCS::Logging::LogLevel::Trace);
+
+				// Discard the result.
+				info->nFlags |= XWF::Search::XWF_SearchHitInfo_Flag_Deleted;
+
+				return;
+			}
+
+			JCS::Logging::Log(std::format("Readable characters in excerpt met the required percentage: {:.2f}/{}. Item added to search hits.", printablePercentage, Models::Configuration::printablePercentRequired), JCS::Logging::LogLevel::Trace);
+
+			// Ensure the result is not marked as deleted.
+			info->nFlags &= ~XWF::Search::XWF_SearchHitInfo_Flag_Deleted;
+
+			// Get the current search term name and append the rename suffix if it does not already exist.
+			std::optional<LPWSTR> pSearchTermName = JCS::XWFWrapper::Search::XWF_GetSearchTerm(info->nSearchTermID, nullptr);
+			if (!pSearchTermName.has_value())
+			{
+				JCS::Logging::Log(L"Failed to retrieve search term name.", JCS::Logging::LogLevel::Error);
+				return;
+			}
+
+			std::wstring searchTermName = JCS::Utils::LPWStrToWString(pSearchTermName.value());
+
+			if (!searchTermName.ends_with(Models::Configuration::searchTermRenameSuffix))
+			{
+				searchTermName = std::format(L"{}{}", searchTermName, Models::Configuration::searchTermRenameSuffix);
+				JCS::XWFWrapper::Search::XWF_ManageSearchTerm(info->nSearchTermID, XWF::Search::XWF_ManageSearchTerm_nProperty_Rename, searchTermName.data());
+			}
+		}
+	};
 }
