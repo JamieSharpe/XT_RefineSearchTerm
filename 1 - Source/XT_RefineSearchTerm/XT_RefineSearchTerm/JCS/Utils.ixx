@@ -63,6 +63,8 @@ namespace JCS::Utils
 	/// <returns></returns>
 	export std::wstring BytesToHex(BYTE* data, INT64 len)
 	{
+		//JCS::Logging::Log("Attempting to convert bytes to hex representation.", JCS::Logging::LogLevel::Trace);
+
 		if (data == nullptr || len == 0)
 		{
 			return L"";
@@ -90,6 +92,8 @@ namespace JCS::Utils
 	/// <returns></returns>
 	export std::wstring WCharPointerToWString(const wchar_t* chars)
 	{
+		//JCS::Logging::Log("Attempting to convert wide char pointer to wide string.", JCS::Logging::LogLevel::Trace);
+
 		if (chars == nullptr || chars[0] == '\0')
 		{
 			return std::wstring();
@@ -105,6 +109,8 @@ namespace JCS::Utils
 	/// <returns></returns>
 	export std::wstring s2ws(const std::string& str, int codePage = CP_UTF8)
 	{
+		//JCS::Logging::Log("Attempting to convert string to wide string.", JCS::Logging::LogLevel::Trace);
+
 		int convertResult = MultiByteToWideChar(codePage, 0, str.data(), -1, NULL, 0);
 		if (convertResult == 0)
 		{
@@ -132,6 +138,8 @@ namespace JCS::Utils
 	/// <returns></returns>
 	export std::string ws2s(const std::wstring& wstr)
 	{
+		//JCS::Logging::Log("Attempting to convert wide string to string.", JCS::Logging::LogLevel::Trace);
+
 		std::vector<char> buf(wstr.size());
 		std::use_facet<std::ctype<wchar_t>>(std::locale()).narrow(wstr.data(), wstr.data() + wstr.size(), '?', buf.data());
 
@@ -146,11 +154,8 @@ namespace JCS::Utils
 	/// <returns></returns>
 	export std::wstring b2ws(const char* str, int codePage)
 	{
-		JCS::Logging::Log("Attempting to convert byte array to wide string:", JCS::Logging::LogLevel::Trace);
-		JCS::Logging::Log(std::format("{}", codePage), JCS::Logging::LogLevel::Trace);
-		JCS::Logging::Log(str, JCS::Logging::LogLevel::Trace);
+		//JCS::Logging::Log(std::format(L"Attempting to convert byte array to wide string with codepage: {}", codePage), JCS::Logging::LogLevel::Trace);
 
-		JCS::Logging::Log("", JCS::Logging::LogLevel::Trace);
 		int convertResult = MultiByteToWideChar(codePage, 0, str, -1, NULL, 0);
 		if (convertResult == 0)
 		{
@@ -178,6 +183,8 @@ namespace JCS::Utils
 	/// <returns></returns>
 	export std::wstring StringToWideString(const char* c)
 	{
+		//JCS::Logging::Log("Attempting to convert string to wide string.", JCS::Logging::LogLevel::Trace);
+
 		if (c == nullptr || c[0] == '\0')
 		{
 			return std::wstring();
@@ -194,6 +201,8 @@ namespace JCS::Utils
 	/// <returns>std::wstring or empty string.</returns>
 	export std::wstring LPWStrToWString(LPWSTR lpWideString)
 	{
+		//JCS::Logging::Log("Attempting to convert pointer wide string to wide string.", JCS::Logging::LogLevel::Trace);
+
 		if (lpWideString == nullptr || (INT64)lpWideString < 0)
 		{
 			return std::wstring();
@@ -280,6 +289,8 @@ namespace JCS::Utils
 	/// <returns>true if an exception was handled (read logged), false if there were no exceptions.</returns>
 	export bool HandleExceptionPtr(std::exception_ptr exceptionPtr)
 	{
+		//JCS::Logging::Log("Attempting and exception pointer.", JCS::Logging::LogLevel::Trace);
+
 		try
 		{
 			if (exceptionPtr)
@@ -405,6 +416,8 @@ namespace JCS::Utils
 
 	export std::wstring GetHelpText()
 	{
+		JCS::Logging::Log("Getting the help text.", JCS::Logging::LogLevel::Trace);
+
 		std::wstring helpTextFileContent = ReadFileToWString(L"./Resources/Help.rtf");
 
 		helpTextFileContent = replaceAll(helpTextFileContent, L"$build_info:appTitle", Build::BuildInfo::appTitle);

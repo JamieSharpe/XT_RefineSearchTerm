@@ -87,7 +87,7 @@ namespace Models
 			std::wstring convertedToString;
 
 			/// remove nulls it not UTF-16 Little Endian (1200) or UTF-16 Big Endian (1201)
-			if (info->nCodePage != 1200 || info->nCodePage != 1201)
+			if (info->nCodePage != 1200 && info->nCodePage != 1201)
 			{
 				for (int i = 0, j = 0; i < readSize; i++)
 				{
@@ -97,15 +97,14 @@ namespace Models
 						j++;
 					}
 				}
-
-				JCS::Utils::b2ws(readBytesNoNulls.get(), info->nCodePage);
+				convertedToString = JCS::Utils::b2ws(readBytesNoNulls.get(), info->nCodePage);
 			}
 			else
 			{
-				convertedToString = JCS::Utils::StringToWideString(readBytes.get());
+				size_t size = readSize + sizeof(wchar_t); // +1 for null terminator
+				
+				convertedToString = std::wstring(reinterpret_cast<wchar_t*>(readBytes.get()), readSize / sizeof(wchar_t));
 			}
-
-			// errors with 0x53 0x00 0x40 0x00
 
 			return convertedToString;
 		}

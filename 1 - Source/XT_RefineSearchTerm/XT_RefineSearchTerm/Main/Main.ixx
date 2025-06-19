@@ -38,6 +38,8 @@ export namespace Main::Main
 	/// <returns>Returns an integer status code to the operating system. Typically, 0 indicates successful execution.</returns>
 	int Main(int argc, char** argv)
 	{
+		Models::SearchHitInfo s = Models::SearchHitInfo(nullptr, nullptr, 10);
+
 		GUI::GUI_Main::CreateMainGUIWindow();
 		//GUI::GUI_Main::CreateHelpGUIWindow();
 
