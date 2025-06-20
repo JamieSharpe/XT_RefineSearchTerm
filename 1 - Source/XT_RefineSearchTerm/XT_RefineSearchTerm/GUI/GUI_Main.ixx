@@ -27,6 +27,7 @@ namespace GUI::GUI_Main
 {
 	std::wstring printablePercentRequired = L"";
 	std::wstring hitContextLength = L"";
+	bool appendNumbersToSearchTerm = false;
 	std::wstring searchTermRenameSuffix = L"";
 	int printablePercentRequiredSpinValue = 0;
 	int hitContextLengthSpinValue = 0;
@@ -44,9 +45,8 @@ namespace GUI::GUI_Main
 	void IDD_MAIN_DIALOG_Initialised(HWND hDlg);
 	void IDD_MAIN_DIALOG_Closed(HWND hDlg);
 	void IDD_MAIN_DIALOG_Destroyed(HWND hDlg);
-	void IDC_Btn_FilePathSelection_Clicked(HWND hDlg);
-	void IDC_Btn_FolderPathSelection_Clicked(HWND hDlg);
 	void IDC_Btn_Process_Clicked(HWND hDlg);
+	void IDC_Cb_AppendNumbersToSearchTerm_Clicked(HWND hDlg);
 	void IDC_Btn_Help_Clicked(HWND hDlg);
 	/// GUI functions for other operations.
 	void ResetGUI(HWND hDlg);
@@ -100,32 +100,39 @@ namespace GUI::GUI_Main
 	/// <returns></returns>
 	INT_PTR CALLBACK MainDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	{
+		bool isHandled = false;
+
 		switch (message)
 		{
 			case WM_INITDIALOG:
 				IDD_MAIN_DIALOG_Initialised(hDlg);
-				return TRUE;
+				isHandled = true;
 				break;
 			case WM_DESTROY:
 				IDD_MAIN_DIALOG_Destroyed(hDlg);
-				return TRUE;
+				isHandled = true;
 				break;
 			case WM_CLOSE:
 				IDD_MAIN_DIALOG_Closed(hDlg);
 				EndDialog(hDlg, 0);
-				return TRUE;
+				isHandled = true;
 				break;
 			case WM_COMMAND:
 				RefreshLocalVariables(hDlg);
 				if (IDC_Button_Is_Clicked(IDC_Btn_Process, wParam))
 				{
 					IDC_Btn_Process_Clicked(hDlg);
-					return TRUE;
+					isHandled = true;
+				}
+				if (IDC_Button_Is_Clicked(IDC_Cb_AppendNumbersToSearchTerm, wParam))
+				{
+					IDC_Cb_AppendNumbersToSearchTerm_Clicked(hDlg);
+					isHandled = true;
 				}
 				if (IDC_Button_Is_Clicked(IDC_Btn_Help, wParam))
 				{
 					IDC_Btn_Help_Clicked(hDlg);
-					return TRUE;
+					isHandled = true;
 				}
 				ValidateGUI(hDlg);
 				break;
@@ -134,11 +141,11 @@ namespace GUI::GUI_Main
 				/// ValidateGUI(hDlg);
 				break;
 		}
-		return FALSE;
+		return isHandled;
 	}
 
 	/// <summary>
-	/// The dialog has initialised, contiue with our own initialisation.
+	/// The dialog has initialised, continue with our own initialisation.
 	/// </summary>
 	/// <param name="hDlg"></param>
 	void IDD_MAIN_DIALOG_Initialised(HWND hDlg)
@@ -214,11 +221,33 @@ namespace GUI::GUI_Main
 
 		JCS::Logging::Log(std::format(L"Printable Percentage Required: {}", printablePercentRequired), JCS::Logging::LogLevel::Trace);
 		JCS::Logging::Log(std::format(L"Hit Context Length: {}", hitContextLength), JCS::Logging::LogLevel::Trace);
+		JCS::Logging::Log(std::format(L"Append Numbers to Search Term: {}", appendNumbersToSearchTerm));
 		JCS::Logging::Log(std::format(L"Search Term Rename Suffix: {}", searchTermRenameSuffix), JCS::Logging::LogLevel::Trace);
+
+		// Get the checkbox state.
+		HWND h_Checkbox_AppendNumbersToSearchTerm = GetDlgItem(hDlg, IDC_Cb_AppendNumbersToSearchTerm);
+		bool isChecked = SendMessage(h_Checkbox_AppendNumbersToSearchTerm, BM_GETCHECK, 0, 0) == BST_CHECKED;
+
+		JCS::Logging::Log(std::format(L"Checkbox append numbers to search term state: {}", isChecked ? L"Checked" : L"Unchecked"), JCS::Logging::LogLevel::Trace);
 
 		/// Run close dialog commands.
 		IDD_MAIN_DIALOG_Closed(hDlg);
 		EndDialog(hDlg, 0);
+	}
+
+	/// <summary>
+	/// Button check box append to search term clicked event handler.
+	/// </summary>
+	/// <param name="hDlg"></param>
+	void IDC_Cb_AppendNumbersToSearchTerm_Clicked(HWND hDlg)
+	{
+		JCS::Logging::Log("Checkbox append to search term button clicked.", JCS::Logging::LogLevel::Trace);
+
+		// Get the checkbox state.
+		HWND h_Checkbox_AppendNumbersToSearchTerm = GetDlgItem(hDlg, IDC_Cb_AppendNumbersToSearchTerm);
+		bool isChecked = SendMessage(h_Checkbox_AppendNumbersToSearchTerm, BM_GETCHECK, 0, 0) == BST_CHECKED;
+
+		Models::Configuration::appendNumbersToSearchTerm = isChecked;
 	}
 
 	/// <summary>
@@ -333,7 +362,6 @@ namespace GUI::GUI_Main
 		JCS::Logging::Log("Resetting GUI to default state.", JCS::Logging::LogLevel::Trace);
 
 		/// Printable percentage required.
-		
 		int printablePercentageRequiredInitialSpinValue = static_cast<int>(Models::Configuration::printablePercentRequired);
 		std::wstring printablePercentageRequiredSpinValueStr = std::to_wstring(printablePercentageRequiredInitialSpinValue);
 		JCS::Logging::Log(std::format(L"Printable percentage: {}", printablePercentageRequiredSpinValueStr), JCS::Logging::LogLevel::Trace);
@@ -344,6 +372,11 @@ namespace GUI::GUI_Main
 		std::wstring HitContextLengthSpinValueStr = std::to_wstring(hitContextInitialSpinValue);
 		JCS::Logging::Log(std::format(L"Hit context: {}", HitContextLengthSpinValueStr), JCS::Logging::LogLevel::Trace);
 		SetDlgItemText(hDlg, IDC_Tb_HitContextLength, HitContextLengthSpinValueStr.c_str());
+
+		/// Append numbers to search term checkbox.
+		HWND h_Checkbox_AppendNumbersToSearchTerm = GetDlgItem(hDlg, IDC_Cb_AppendNumbersToSearchTerm);
+		auto isAppendNumbersToSearchTermChecked = Models::Configuration::appendNumbersToSearchTerm ? BST_CHECKED : BST_UNCHECKED;
+		bool isChecked = SendMessage(h_Checkbox_AppendNumbersToSearchTerm, BM_SETCHECK, isAppendNumbersToSearchTermChecked, 0) == BST_CHECKED;
 
 		/// Search Term Rename Suffix
 		JCS::Logging::Log(std::format(L"Search Term Rename Suffix: {}", HitContextLengthSpinValueStr), JCS::Logging::LogLevel::Trace);
@@ -375,6 +408,11 @@ namespace GUI::GUI_Main
 		{
 			hitContextLengthSpinValue = static_cast<int>(SendMessage(h_HitContextLength_SpinCtrl, UDM_GETPOS, 0, 0));
 		}
+
+		// Get the checkbox state.
+		HWND h_Checkbox_AppendNumbersToSearchTerm = GetDlgItem(hDlg, IDC_Cb_AppendNumbersToSearchTerm);
+		bool isChecked = SendMessage(h_Checkbox_AppendNumbersToSearchTerm, BM_GETCHECK, 0, 0) == BST_CHECKED;
+		appendNumbersToSearchTerm = isChecked;
 
 		searchTermRenameSuffix = GetTextFromTextbox(hDlg, IDC_Tb_SearchTermRenameSuffix);
 		
@@ -438,6 +476,7 @@ namespace GUI::GUI_Main
 
 		Models::Configuration::searchTermRenameSuffix = searchTermRenameSuffix;
 		Models::Configuration::hitContextLength = hitContextLengthSpinValue;
+		Models::Configuration::appendNumbersToSearchTerm = appendNumbersToSearchTerm;
 		Models::Configuration::printablePercentRequired = static_cast<double>(printablePercentRequiredSpinValue);
 
 		JCS::Logging::Log("Saved configuration from GUI.", JCS::Logging::LogLevel::Trace);

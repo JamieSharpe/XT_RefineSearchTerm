@@ -174,9 +174,16 @@ namespace Models
 
 			std::wstring searchTermName = JCS::Utils::LPWStrToWString(pSearchTermName.value());
 
-			if (!searchTermName.ends_with(Models::Configuration::searchTermRenameSuffix))
+			std::wstring appendSearchTermName = Models::Configuration::searchTermRenameSuffix;
+
+			if (Models::Configuration::appendNumbersToSearchTerm)
 			{
-				searchTermName = std::format(L"{}{}", searchTermName, Models::Configuration::searchTermRenameSuffix);
+				appendSearchTermName = std::format(L"{} ({}%:{}b)", appendSearchTermName, Models::Configuration::printablePercentRequired, Models::Configuration::hitContextLength);
+			}
+
+			if (!searchTermName.ends_with(appendSearchTermName))
+			{
+				searchTermName = std::format(L"{}{}", searchTermName, appendSearchTermName);
 				JCS::XWFWrapper::Search::XWF_ManageSearchTerm(info->nSearchTermID, XWF::Search::XWF_ManageSearchTerm_nProperty_Rename, searchTermName.data());
 			}
 		}

@@ -12,6 +12,7 @@ export namespace Models::Configuration
 	bool configured = false;
 	double printablePercentRequired = 90;
 	int hitContextLength = 30;
+	bool appendNumbersToSearchTerm = true;
 	std::wstring searchTermRenameSuffix = L" - RST";
 
 	void Setup()
@@ -27,6 +28,7 @@ export namespace Models::Configuration
 		JCS::Logging::Log(std::format(L"Configured: {}", configured));
 		JCS::Logging::Log(std::format(L"Printable Percent Required: {}", printablePercentRequired));
 		JCS::Logging::Log(std::format(L"Hit Context Length: {}", hitContextLength));
+		JCS::Logging::Log(std::format(L"Append Numbers to Search Term: {}", appendNumbersToSearchTerm));
 		JCS::Logging::Log(std::format(L"Search Term Rename Suffix: {}", searchTermRenameSuffix));
 	}
 

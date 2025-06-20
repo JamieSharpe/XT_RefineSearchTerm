@@ -25,9 +25,9 @@ export namespace Build::BuildInfo
 	const std::wstring author = std::wstring(L"Jamie Sharpe");
 	const std::wstring authorUrl = std::wstring(L"https://jamiesharpe.co.uk");
 	const std::wstring appName = std::wstring(L"XT_RefineSearchTerm");
-	const std::wstring appVersion = std::wstring(L"2025.06.19.1455");
+	const std::wstring appVersion = std::wstring(L"2025.06.20.2009");
 	const std::wstring appReleaseMode = releaseMode ? std::wstring(L"Release") : std::wstring(L"Debug");
-	const std::wstring appUrl = std::wstring(L"https://github.com/JamieSharpe/XT_Template");
+	const std::wstring appUrl = std::wstring(L"https://github.com/JamieSharpe/XT_RefineSearchTerm");
 	const std::wstring appTitle = std::format(L"{} v{} ({} Mode)", appName, appVersion, appReleaseMode);
 	const std::wstring appTitleExtended = std::format(L"{} v{} ({} Mode) - Author: {}", appName, appVersion, appReleaseMode, author);
 }
