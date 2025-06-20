@@ -218,9 +218,22 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Main\Exports.def" />
-    <None Include="Resources\Help.rtf">
+    <CopyFileToFolders Include="Resources\Help.rtf">
       <DeploymentContent>true</DeploymentContent>
-    </None>
+      <FileType>Document</FileType>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)/Resources</DestinationFolders>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatOutputAsContent>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)/Resources</DestinationFolders>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatOutputAsContent>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug_Exe|x64'">$(OutDir)/Resources</DestinationFolders>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Debug_Exe|x64'">true</TreatOutputAsContent>
+      <RootFolder Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </RootFolder>
+      <RootFolder Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </RootFolder>
+      <RootFolder Condition="'$(Configuration)|$(Platform)'=='Debug_Exe|x64'">
+      </RootFolder>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\resource.h" />

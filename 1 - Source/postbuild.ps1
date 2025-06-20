@@ -19,12 +19,6 @@ Write-Host "Configuration: $app_build_configuration"
 Write-Host "Xtension Folder: $XTensionFolder"
 Write-Host "Post-Build Script - $app_build_configuration Mode"
 
-# xcopy /y /d /f "$(OutDir)$(TargetFileName)" "C:\Program Files\X-Ways Forensics\XTensions"
-
-Write-Host "Copying Resource Folder to Build Location."
-
-Copy-Item $resource_path -Destination $build_path -Force -Recurse | Out-Null
-
 Write-Host "Creating XTension Folder."
 
 # Create the release folder.
